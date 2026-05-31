@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" role="img" aria-labelledby="title desc">
+  <title id="title">ROLA Boutique Primary Logo</title>
+  <desc id="desc">Minimal luxury serif wordmark for ROLA Boutique.</desc>
+  <g fill="#2F2A26">
+    <text x="360" y="116" text-anchor="middle"
+      font-family="Bodoni 72, Bodoni Moda, Didot, Cormorant Garamond, Playfair Display, Georgia, serif"
+      font-size="92" font-weight="400" letter-spacing="22">ROLA</text>
+    <line x1="206" y1="146" x2="514" y2="146" stroke="#8E7D6B" stroke-width="1.2"/>
+    <text x="360" y="166" text-anchor="middle"
+      font-family="Cormorant Garamond, Playfair Display, Georgia, serif"
+      font-size="16" letter-spacing="9">BOUTIQUE</text>
+  </g>
+</svg>
