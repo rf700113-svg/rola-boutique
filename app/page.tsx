@@ -119,18 +119,21 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="bg-ivory px-4 py-20 sm:px-6 sm:py-[120px] lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_auto] md:items-center">
+      <section className="bg-ivory px-4 py-16 sm:px-6 sm:py-[120px] lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-7 md:grid-cols-[1fr_auto] md:items-center md:gap-8">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-champagne">LINE Official</p>
-            <h2 className="mt-4 font-serif text-4xl text-charcoal">加入 ROLA LINE 官方帳號</h2>
-            <p className="mt-5 text-charcoal/70">尺寸建議｜新品詢問｜一對一穿搭服務</p>
+            <h2 className="mt-3 whitespace-nowrap font-serif text-[clamp(30px,8vw,42px)] leading-[1.25] tracking-normal text-charcoal sm:mt-4 sm:text-4xl">
+              <span className="sm:hidden">加入 ROLA LINE</span>
+              <span className="hidden sm:inline">加入 ROLA LINE 官方帳號</span>
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-charcoal/70 sm:mt-5 sm:text-base">尺寸建議｜新品詢問｜一對一穿搭服務</p>
           </div>
           <a
             href={lineUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-12 items-center justify-center gap-2 bg-charcoal px-7 py-3 text-sm tracking-[0.16em] text-white transition hover:bg-champagne"
+            className="mx-[30px] inline-flex min-h-11 items-center justify-center gap-2 bg-charcoal px-6 py-2.5 text-sm tracking-[0.14em] text-white transition hover:bg-champagne sm:mx-0 sm:min-h-12 sm:px-7 sm:py-3 sm:tracking-[0.16em]"
           >
             <MessageCircle size={18} />
             立即加入 LINE

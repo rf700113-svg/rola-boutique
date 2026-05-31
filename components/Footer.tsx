@@ -4,12 +4,16 @@ import { facebookUrl, lineUrl } from "@/lib/contact";
 
 export function Footer() {
   return (
-    <footer className="border-t border-stone bg-ivory">
+    <footer className="border-t border-stone bg-ivory pb-20 sm:pb-0">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr] lg:px-8">
         <div>
-          <p className="font-playfair text-3xl tracking-[0.2em] text-charcoal">ROLA Boutique</p>
-          <p className="mt-2 text-xs uppercase tracking-[0.35em] text-charcoal/60">Since 2012</p>
-          <p className="mt-6 max-w-sm whitespace-pre-line leading-7 text-charcoal/70">
+          <p className="font-playfair text-[26px] tracking-[0.18em] text-charcoal sm:text-3xl sm:tracking-[0.2em]">
+            ROLA Boutique
+          </p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.28em] text-charcoal/60 sm:text-xs sm:tracking-[0.35em]">
+            Since 2012
+          </p>
+          <p className="mt-6 max-w-sm whitespace-pre-line text-sm leading-[1.8] text-charcoal/70 sm:text-base">
             獻給重視質感與生活品味的女性。{"\n"}
             從日常穿搭到重要場合，{"\n"}
             以優雅與自信完成屬於妳的風格。

@@ -40,17 +40,17 @@ export function Header() {
 
   return (
     <header
-      className={`fixed left-0 top-0 z-50 w-full transition duration-300 ${
+      className={`fixed left-0 top-0 z-[9999] w-full transition duration-300 ${
         isScrolled
           ? "border-b border-stone/50 bg-[#faf8f5]/95 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur-[18px]"
-          : "border-b border-white/10 bg-transparent"
+          : "border-b border-white/10 bg-black/10 backdrop-blur-[2px] sm:bg-transparent sm:backdrop-blur-0"
       }`}
     >
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4 sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3.5 sm:px-6 sm:py-4 lg:px-10">
         <Link
           href="/"
           aria-label="ROLA Boutique 首頁"
-          className={`font-playfair text-[34px] leading-none tracking-[0.32em] transition ${logoClass}`}
+          className={`font-playfair text-[30px] leading-none tracking-[0.32em] transition sm:text-[34px] ${logoClass}`}
         >
           ROLA
         </Link>
