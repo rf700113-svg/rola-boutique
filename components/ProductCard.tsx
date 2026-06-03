@@ -23,36 +23,38 @@ export function ProductCard({ product, rank }: { product: Product; rank?: number
   const badge = rank ? `No.${rank}` : product.isNew ? "NEW" : product.isBestSeller ? "BEST" : "";
 
   return (
-    <article className="group bg-cream/40 transition duration-[400ms] hover:-translate-y-[6px] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)]">
+    <article className="group bg-cream/40 transition duration-[400ms] hover:-translate-y-[6px] hover:scale-[1.03] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)]">
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-ivory">
+        <div className="relative aspect-[5/6] overflow-hidden bg-ivory sm:aspect-[3/4]">
           <Image
             src={getDisplayImage(product)}
             alt={product.name}
             fill
             className="object-cover object-top transition duration-[400ms] group-hover:scale-[1.03]"
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 50vw"
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
           />
           {badge ? (
-            <span className="absolute left-2.5 top-2.5 bg-cream px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-charcoal sm:left-3 sm:top-3 sm:px-3 sm:text-[11px] sm:tracking-[0.18em]">
+            <span className="absolute left-2.5 top-2.5 bg-cream px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-charcoal sm:left-3 sm:top-3 sm:px-3 sm:text-[11px] sm:tracking-[0.18em]">
               {badge}
             </span>
           ) : null}
         </div>
       </Link>
-      <div className="flex min-h-[154px] flex-col p-3 pt-4 sm:min-h-[166px] sm:p-4 sm:pt-5">
-        <p className="text-[11px] uppercase tracking-[0.16em] text-charcoal/45 sm:text-xs">{product.category}</p>
+      <div className="flex min-h-[140px] flex-col p-3 pt-3.5 sm:min-h-[160px] sm:p-4 sm:pt-5">
+        <p className="text-[10px] uppercase tracking-[0.14em] text-charcoal/45 sm:text-xs">{product.category}</p>
         <Link href={`/products/${product.slug}`}>
           <h3 className="mt-1 line-clamp-2 text-[13px] font-medium leading-5 text-charcoal transition hover:text-champagne sm:text-base sm:leading-6">
             {product.name}
           </h3>
         </Link>
-        <p className="mt-3 text-[15px] tracking-wide text-charcoal/75 sm:text-sm">{formatPrice(product.price)}</p>
+        <p className="mt-2.5 text-[16px] tracking-wide text-charcoal/80 sm:mt-3 sm:text-[15px]">
+          {formatPrice(product.price)}
+        </p>
         <a
           href={createLineProductInquiryUrl(product.name)}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-flex w-fit items-center gap-1.5 border border-stone px-2.5 py-1.5 text-[11px] tracking-[0.1em] text-charcoal transition hover:border-champagne hover:bg-champagne hover:text-white sm:gap-2 sm:px-3 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+          className="mt-3 inline-flex w-fit items-center gap-1.5 border border-[#06C755] bg-[#06C755] px-2.5 py-1.5 text-[11px] tracking-[0.08em] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D] sm:mt-4 sm:gap-2 sm:px-3 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
         >
           <MessageCircle size={14} />
           LINE 詢問尺寸
