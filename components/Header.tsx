@@ -33,23 +33,23 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHome]);
 
-  const isFloating = isHome && !isScrolled;
-  const desktopLogoClass = isFloating ? "sm:text-white" : "sm:text-charcoal";
-  const desktopNavClass = isFloating ? "sm:text-white/90" : "sm:text-[#2B2623]";
+  const isFloatingDesktop = isHome && !isScrolled;
+  const desktopLogoClass = isFloatingDesktop ? "sm:text-white" : "sm:text-charcoal";
+  const desktopNavClass = isFloatingDesktop ? "sm:text-white/90" : "sm:text-[#2B2623]";
 
   return (
     <header
-      className={`fixed left-0 top-0 z-[10000] w-full border-b transition duration-300 ${
+      className={`fixed left-0 top-0 z-[10000] h-16 w-full border-b border-stone/50 bg-[#f7f4ef]/[0.96] backdrop-blur-[16px] transition duration-300 sm:h-auto ${
         isScrolled
-          ? "border-stone/50 bg-[#faf8f5]/95 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur-[18px]"
-          : "border-stone/40 bg-[#faf8f5]/95 backdrop-blur-[18px] sm:border-white/10 sm:bg-transparent sm:backdrop-blur-0"
+          ? "sm:border-stone/50 sm:bg-[#faf8f5]/95 sm:shadow-[0_12px_40px_rgba(0,0,0,0.04)] sm:backdrop-blur-[18px]"
+          : "sm:border-white/10 sm:bg-transparent sm:backdrop-blur-0"
       }`}
     >
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-2.5 sm:px-6 sm:py-4 lg:px-10">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-[18px] sm:h-auto sm:px-6 sm:py-4 lg:px-10">
         <Link
           href="/"
           aria-label="ROLA Boutique 首頁"
-          className={`font-playfair text-[27px] leading-none tracking-[0.3em] text-charcoal transition sm:text-[34px] sm:tracking-[0.32em] ${desktopLogoClass}`}
+          className={`font-playfair text-[28px] leading-none tracking-[0.28em] text-charcoal sm:text-[34px] sm:tracking-[0.32em] ${desktopLogoClass}`}
         >
           ROLA
         </Link>
@@ -67,13 +67,17 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <Link href="/products" aria-label="搜尋商品" className={`text-charcoal transition hover:text-champagne ${desktopNavClass}`}>
+          <Link
+            href="/products"
+            aria-label="搜尋商品"
+            className={`text-charcoal transition hover:text-champagne ${desktopNavClass}`}
+          >
             <Search size={20} strokeWidth={2.1} />
           </Link>
           <Link
             href="/contact"
             className={`border px-5 py-2.5 text-[15px] font-medium tracking-[0.12em] transition ${
-              isFloating
+              isFloatingDesktop
                 ? "border-charcoal text-charcoal hover:border-champagne hover:bg-champagne hover:text-white sm:border-white/85 sm:text-white sm:hover:bg-white sm:hover:text-charcoal"
                 : "border-charcoal text-charcoal hover:border-champagne hover:bg-champagne hover:text-white"
             }`}
@@ -82,7 +86,7 @@ export function Header() {
           </Link>
         </div>
 
-        <MobileMenu navItems={navItems} isFloating={isFloating} />
+        <MobileMenu navItems={navItems} />
       </div>
     </header>
   );
