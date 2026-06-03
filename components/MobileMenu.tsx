@@ -5,7 +5,13 @@ import { Facebook, Menu, MessageCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { facebookUrl, lineUrl } from "@/lib/contact";
 
-export function MobileMenu({ navItems }: { navItems: { href: string; label: string }[] }) {
+type NavItem = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
+export function MobileMenu({ navItems }: { navItems: NavItem[] }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -45,11 +51,23 @@ export function MobileMenu({ navItems }: { navItems: { href: string; label: stri
           aria-modal="true"
         >
           <nav className="grid gap-4 text-[23px] font-medium tracking-[0.08em] text-charcoal">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} onClick={closeMenu}>
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.external ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={closeMenu}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link key={item.href} href={item.href} onClick={closeMenu}>
+                  {item.label}
+                </Link>
+              )
+            )}
           </nav>
 
           <div className="mt-auto grid gap-3 border-t border-stone pt-6">

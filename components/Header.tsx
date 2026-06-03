@@ -5,15 +5,22 @@ import { usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MobileMenu } from "@/components/MobileMenu";
+import { lineUrl } from "@/lib/contact";
 
-const navItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
+const navItems: NavItem[] = [
   { href: "/", label: "首頁" },
   { href: "/products?category=New%20Arrival", label: "新品上市" },
   { href: "/products?category=Dresses", label: "洋裝" },
   { href: "/products?category=Tops", label: "上衣" },
   { href: "/products?category=Bottoms", label: "褲裝" },
   { href: "/products?category=Outerwear", label: "外套" },
-  { href: "/contact", label: "聯絡我們" }
+  { href: lineUrl, label: "LINE諮詢", external: true }
 ];
 
 export function Header() {
@@ -55,15 +62,27 @@ export function Header() {
         </Link>
 
         <nav className={`hidden items-center gap-5 text-[15px] font-medium tracking-[0.08em] transition xl:flex ${desktopNavClass}`}>
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="relative py-2 transition after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-[#C8B08A] after:transition-transform hover:text-champagne hover:after:scale-x-100"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.external ? (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="relative py-2 transition after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-[#C8B08A] after:transition-transform hover:text-champagne hover:after:scale-x-100"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative py-2 transition after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-[#C8B08A] after:transition-transform hover:text-champagne hover:after:scale-x-100"
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
@@ -74,16 +93,18 @@ export function Header() {
           >
             <Search size={20} strokeWidth={2.1} />
           </Link>
-          <Link
-            href="/contact"
+          <a
+            href={lineUrl}
+            target="_blank"
+            rel="noreferrer"
             className={`border px-5 py-2.5 text-[15px] font-medium tracking-[0.12em] transition ${
               isFloatingDesktop
                 ? "border-charcoal text-charcoal hover:border-champagne hover:bg-champagne hover:text-white sm:border-white/85 sm:text-white sm:hover:bg-white sm:hover:text-charcoal"
                 : "border-charcoal text-charcoal hover:border-champagne hover:bg-champagne hover:text-white"
             }`}
           >
-            詢問選品
-          </Link>
+            LINE諮詢
+          </a>
         </div>
 
         <MobileMenu navItems={navItems} />
