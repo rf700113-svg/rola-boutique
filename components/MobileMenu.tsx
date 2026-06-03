@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Facebook, Menu, MessageCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { facebookUrl, lineUrl } from "@/lib/contact";
 
 export function MobileMenu({
   navItems,
@@ -15,13 +16,16 @@ export function MobileMenu({
 
   useEffect(() => {
     if (!isOpen) {
+      document.body.classList.remove("mobile-menu-open");
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.classList.add("mobile-menu-open");
+
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = "";
+      document.body.classList.remove("mobile-menu-open");
     };
   }, [isOpen]);
 
@@ -40,14 +44,8 @@ export function MobileMenu({
       </button>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-[10001] bg-charcoal/35 xl:hidden" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            aria-label="關閉選單背景"
-            className="absolute inset-0 h-full w-full cursor-default"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="relative ml-auto flex h-full w-[86%] max-w-sm flex-col bg-cream px-6 pb-[max(28px,env(safe-area-inset-bottom))] pt-5 shadow-[0_20px_80px_rgba(0,0,0,0.18)]">
+        <div className="fixed left-0 top-0 z-[10001] h-[100dvh] w-screen bg-cream xl:hidden" role="dialog" aria-modal="true">
+          <div className="flex h-full flex-col px-6 pb-[max(28px,env(safe-area-inset-bottom))] pt-5">
             <div className="flex items-center justify-between">
               <div>
                 <span className="block font-playfair text-2xl tracking-[0.24em] text-charcoal">ROLA</span>
@@ -63,13 +61,34 @@ export function MobileMenu({
               </button>
             </div>
 
-            <nav className="mt-9 grid gap-[18px] overflow-y-auto pb-10 text-[22px] font-medium tracking-[0.08em] text-charcoal">
+            <nav className="mt-10 grid gap-[18px] overflow-y-auto pb-8 text-[23px] font-medium tracking-[0.08em] text-charcoal">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}>
                   {item.label}
                 </Link>
               ))}
             </nav>
+
+            <div className="mt-auto grid gap-3 border-t border-stone pt-6">
+              <a
+                href={lineUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 bg-charcoal px-5 py-2.5 text-sm tracking-[0.14em] text-white"
+              >
+                <MessageCircle size={17} />
+                加入 LINE
+              </a>
+              <a
+                href={facebookUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 border border-charcoal px-5 py-2.5 text-sm tracking-[0.14em] text-charcoal"
+              >
+                <Facebook size={17} />
+                追蹤 Facebook
+              </a>
+            </div>
           </div>
         </div>
       ) : null}

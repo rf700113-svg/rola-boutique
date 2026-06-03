@@ -26,6 +26,10 @@ body {
   color: #ffffff;
 }
 
+body.mobile-menu-open .floating-line-button {
+  display: none;
+}
+
 .editorial-image {
   background:
     linear-gradient(145deg, rgba(247, 243, 238, 0.92), rgba(234, 227, 216, 0.7)),
