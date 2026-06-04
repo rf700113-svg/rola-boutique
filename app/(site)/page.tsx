@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, Facebook, MessageCircle } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -14,7 +14,7 @@ export default async function Home() {
     getSocialSettings(),
     getBrandSettings()
   ]);
-  const visibleNewArrivals = newArrivals.slice(0, Math.max(1, home.newArrivalCount || 6));
+  const visibleNewArrivals = newArrivals.slice(0, Math.min(8, Math.max(1, home.newArrivalCount || 8)));
 
   return (
     <>
@@ -35,9 +35,9 @@ export default async function Home() {
             <p className="mt-4 whitespace-nowrap font-serif text-[clamp(14px,3.8vw,20px)] leading-tight text-[#F6F2ED] sm:mt-5 sm:text-[clamp(19px,2vw,30px)]">
               {home.heroSubtitle}
             </p>
-            {home.heroIntro ? (
+            {home.heroDescription ? (
               <p className="mt-4 hidden max-w-md whitespace-pre-line text-sm leading-7 text-white/85 sm:block">
-                {home.heroIntro}
+                {home.heroDescription}
               </p>
             ) : null}
             <div className="mt-6 grid gap-2.5 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
@@ -52,7 +52,7 @@ export default async function Home() {
                 href={home.secondaryButtonLink || social.lineUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#06C755] bg-[#06C755] px-5 py-2.5 text-xs tracking-[0.14em] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D] sm:min-h-12 sm:px-7 sm:py-3 sm:text-sm sm:tracking-[0.16em]"
+                className="inline-flex min-h-10 items-center justify-center gap-2 border border-[#06C755] bg-[#06C755] px-5 py-2.5 text-xs tracking-[0.14em] text-white transition hover:opacity-90 sm:min-h-12 sm:px-7 sm:py-3 sm:text-sm sm:tracking-[0.16em]"
               >
                 <MessageCircle size={16} />
                 {home.secondaryButtonText}
@@ -82,6 +82,26 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="bg-cream px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-champagne">About ROLA</p>
+          <h2 className="mt-4 font-serif text-3xl leading-tight text-charcoal sm:text-5xl">
+            {home.aboutTitle}
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl leading-8 text-charcoal/70">
+            {home.aboutContent}
+          </p>
+          {home.aboutButtonText ? (
+            <Link
+              href="/products"
+              className="mt-8 inline-flex min-h-11 items-center justify-center border border-charcoal px-7 py-3 text-sm tracking-[0.16em] text-charcoal transition hover:bg-charcoal hover:text-white"
+            >
+              {home.aboutButtonText}
+            </Link>
+          ) : null}
+        </div>
+      </section>
+
       <section id="line-official" className="bg-ivory px-4 py-11 sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-[1fr_auto] md:items-center md:gap-8">
           <div>
@@ -99,7 +119,7 @@ export default async function Home() {
                 href={social.lineUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mx-[30px] inline-flex h-12 items-center justify-center gap-2 border border-[#06C755] bg-[#06C755] px-6 text-[15px] tracking-[0.08em] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D] sm:mx-0 sm:w-auto sm:px-7"
+                className="mx-[30px] inline-flex h-12 items-center justify-center gap-2 border border-[#06C755] bg-[#06C755] px-6 text-[15px] tracking-[0.08em] text-white transition hover:opacity-90 sm:mx-0 sm:w-auto sm:px-7"
               >
                 <MessageCircle size={18} />
                 LINE 一對一詢問
@@ -110,7 +130,7 @@ export default async function Home() {
                 href={social.facebookUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mx-[30px] inline-flex h-12 items-center justify-center gap-2 border border-[#1877F2] bg-[#1877F2] px-6 text-[15px] tracking-[0.08em] text-white transition hover:border-[#166FE5] hover:bg-[#166FE5] sm:mx-0 sm:w-auto sm:px-7"
+                className="mx-[30px] inline-flex h-12 items-center justify-center gap-2 border border-[#1877F2] bg-[#1877F2] px-6 text-[15px] tracking-[0.08em] text-white transition hover:opacity-90 sm:mx-0 sm:w-auto sm:px-7"
               >
                 <Facebook size={18} />
                 Facebook 最新穿搭
@@ -122,3 +142,4 @@ export default async function Home() {
     </>
   );
 }
+

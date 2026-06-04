@@ -15,7 +15,7 @@ type NavItem = {
 function buildNavItems(lineUrl: string): NavItem[] {
   return [
     { href: "/", label: "首頁" },
-    { href: "/products?category=New%20Arrival", label: "新品上市" },
+    { href: "/#new-arrival", label: "新品上市" },
     { href: "/products?category=Dresses", label: "洋裝" },
     { href: "/products?category=Tops", label: "上衣" },
     { href: "/products?category=Bottoms", label: "褲裝" },
@@ -24,7 +24,7 @@ function buildNavItems(lineUrl: string): NavItem[] {
   ];
 }
 
-export function Header({ logoText, lineUrl }: { logoText: string; lineUrl: string }) {
+export function Header({ logoText, brandSubtitle, lineUrl }: { logoText: string; brandSubtitle: string; lineUrl: string }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(!isHome);
@@ -46,6 +46,10 @@ export function Header({ logoText, lineUrl }: { logoText: string; lineUrl: strin
   const desktopLogoClass = isFloatingDesktop ? "sm:text-white" : "sm:text-charcoal";
   const desktopNavClass = isFloatingDesktop ? "sm:text-white/90" : "sm:text-[#2B2623]";
 
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <header
       className={`fixed left-0 top-0 z-[10000] h-16 w-full border-b border-stone/50 bg-[#f7f4ef]/[0.96] backdrop-blur-[16px] transition duration-300 sm:h-auto ${
@@ -58,9 +62,14 @@ export function Header({ logoText, lineUrl }: { logoText: string; lineUrl: strin
         <Link
           href="/"
           aria-label="ROLA Boutique 首頁"
-          className={`font-playfair text-[28px] leading-none tracking-[0.28em] text-charcoal sm:text-[34px] sm:tracking-[0.32em] ${desktopLogoClass}`}
+          className={`flex flex-col leading-none text-charcoal ${desktopLogoClass}`}
         >
-          {logoText}
+          <span className="font-playfair text-[30px] font-light tracking-[0.32em] sm:text-[42px] sm:tracking-[0.35em]">
+            {logoText}
+          </span>
+          <span className="mt-1 text-[9px] uppercase tracking-[0.38em] sm:text-[10px] sm:tracking-[0.45em]">
+            {brandSubtitle}
+          </span>
         </Link>
 
         <nav className={`hidden items-center gap-5 text-[15px] font-medium tracking-[0.08em] transition xl:flex ${desktopNavClass}`}>
@@ -88,11 +97,7 @@ export function Header({ logoText, lineUrl }: { logoText: string; lineUrl: strin
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <Link
-            href="/products"
-            aria-label="搜尋商品"
-            className={`text-charcoal transition hover:text-champagne ${desktopNavClass}`}
-          >
+          <Link href="/products" aria-label="搜尋商品" className={`text-charcoal transition hover:text-champagne ${desktopNavClass}`}>
             <Search size={20} strokeWidth={2.1} />
           </Link>
           <a

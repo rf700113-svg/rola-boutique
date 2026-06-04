@@ -50,7 +50,8 @@ function getCheckbox(formData: FormData, key: string) {
 
 function redirectWithError(tab: AdminTab, error: unknown) {
   const message = error instanceof Error ? error.message : "儲存時發生錯誤，請稍後再試。";
-  redirect(`/admin?tab=${tab}&errorMessage=${encodeURIComponent(message)}`);
+  const path = tab === "products" ? "/admin/products" : "/admin/settings";
+  redirect(`${path}?errorMessage=${encodeURIComponent(message)}`);
 }
 
 async function ensureAdmin() {
@@ -88,6 +89,7 @@ function buildProductFromForm(formData: FormData, existing?: Product): Product {
     ...(typeof sortOrder === "number" ? { sortOrder } : {}),
     isActive: getCheckbox(formData, "isActive"),
     isNew: getCheckbox(formData, "isNew"),
+    showOnHome: getCheckbox(formData, "showOnHome"),
     isBestSeller: getCheckbox(formData, "isBestSeller"),
     lineInquiryText: getString(formData, "lineInquiryText")
   };
@@ -102,7 +104,7 @@ export async function loginAction(formData: FormData) {
   }
 
   await setAdminSession();
-  redirect("/admin");
+  redirect("/admin/products");
 }
 
 export async function logoutAction() {
@@ -134,7 +136,7 @@ export async function saveProductAction(formData: FormData) {
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=products&saved=1");
+  redirect("/admin/products?saved=1");
 }
 
 export async function deleteProductAction(formData: FormData) {
@@ -149,7 +151,7 @@ export async function deleteProductAction(formData: FormData) {
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=products&deleted=1");
+  redirect("/admin/products?deleted=1");
 }
 
 export async function saveHomeSettingsAction(formData: FormData) {
@@ -164,19 +166,22 @@ export async function saveHomeSettingsAction(formData: FormData) {
       heroImage: heroImage || existing.heroImage,
       heroTitle: getString(formData, "heroTitle") || existing.heroTitle,
       heroSubtitle: getString(formData, "heroSubtitle") || existing.heroSubtitle,
-      heroIntro: getString(formData, "heroIntro"),
+      heroDescription: getString(formData, "heroDescription"),
       primaryButtonText: getString(formData, "primaryButtonText") || existing.primaryButtonText,
       primaryButtonLink: getString(formData, "primaryButtonLink") || existing.primaryButtonLink,
       secondaryButtonText: getString(formData, "secondaryButtonText") || existing.secondaryButtonText,
       secondaryButtonLink: getString(formData, "secondaryButtonLink") || existing.secondaryButtonLink,
-      newArrivalCount: Math.max(1, Math.min(24, newArrivalCount))
+      newArrivalCount: Math.max(1, Math.min(8, newArrivalCount)),
+      aboutTitle: getString(formData, "aboutTitle") || existing.aboutTitle,
+      aboutContent: getString(formData, "aboutContent") || existing.aboutContent,
+      aboutButtonText: getString(formData, "aboutButtonText") || existing.aboutButtonText
     });
   } catch (error) {
     redirectWithError("home", error);
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=home&saved=1");
+  redirect("/admin/settings?saved=1");
 }
 
 export async function saveSocialSettingsAction(formData: FormData) {
@@ -196,7 +201,7 @@ export async function saveSocialSettingsAction(formData: FormData) {
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=social&saved=1");
+  redirect("/admin/settings?saved=1");
 }
 
 export async function saveBrandSettingsAction(formData: FormData) {
@@ -207,6 +212,7 @@ export async function saveBrandSettingsAction(formData: FormData) {
     await saveBrandSettings({
       siteName: getString(formData, "siteName") || existing.siteName,
       logoText: getString(formData, "logoText") || existing.logoText,
+      brandSubtitle: getString(formData, "brandSubtitle") || existing.brandSubtitle,
       sinceYear: getString(formData, "sinceYear") || existing.sinceYear,
       footerText: getString(formData, "footerText") || existing.footerText,
       footerShowFacebook: getCheckbox(formData, "footerShowFacebook"),
@@ -217,7 +223,7 @@ export async function saveBrandSettingsAction(formData: FormData) {
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=brand&saved=1");
+  redirect("/admin/settings?saved=1");
 }
 
 export async function saveSeoSettingsAction(formData: FormData) {
@@ -239,5 +245,5 @@ export async function saveSeoSettingsAction(formData: FormData) {
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=seo&saved=1");
+  redirect("/admin/settings?saved=1");
 }

@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { lineUrl as fallbackLineUrl } from "@/lib/contact";
@@ -60,7 +60,7 @@ export function ProductCard({ product, rank, lineUrl = fallbackLineUrl }: { prod
           href={createInquiryUrl(product, lineUrl)}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 inline-flex w-fit items-center gap-1.5 border border-[#06C755] bg-[#06C755] px-2.5 py-1.5 text-[11px] tracking-[0.08em] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D] sm:mt-4 sm:gap-2 sm:px-3 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+          className="mt-3 inline-flex w-fit items-center gap-1.5 border border-[#06C755] bg-[#06C755] px-2.5 py-1.5 text-[11px] tracking-[0.08em] text-white transition hover:opacity-90 sm:mt-4 sm:gap-2 sm:px-3 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
         >
           <MessageCircle size={14} />
           LINE 詢問尺寸
@@ -69,3 +69,4 @@ export function ProductCard({ product, rank, lineUrl = fallbackLineUrl }: { prod
     </article>
   );
 }
+

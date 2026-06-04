@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, MessageCircle } from "lucide-react";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
   const product = await getProductBySlug(slug);
 
   return {
-    title: product ? `${product.name} | ROLA Boutique` : "商品未找到 | ROLA Boutique"
+    title: product ? `${product.name} | ROLA Boutique` : "???芣??| ROLA Boutique"
   };
 }
 
@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   href={createInquiryUrl(product.name, social.lineUrl, product.lineInquiryText)}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#06C755] px-6 py-4 text-sm tracking-[0.12em] text-white transition hover:brightness-95"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#06C755] px-6 py-4 text-sm tracking-[0.12em] text-white transition hover:opacity-90"
                 >
                   <MessageCircle size={19} />
                   用 LINE 詢問這件商品
@@ -121,7 +121,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           {related.length > 0 ? (
             <section className="mt-20 border-t border-stone pt-12">
-              <h2 className="font-serif text-3xl text-charcoal">相關商品</h2>
+              <h2 className="font-serif text-3xl text-charcoal">?賊???</h2>
               <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
                 {related.map((item) => (
                   <ProductCard key={item.id} product={item} lineUrl={social.lineUrl} />
@@ -134,3 +134,4 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </div>
   );
 }
+

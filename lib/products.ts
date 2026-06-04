@@ -18,6 +18,7 @@ export type Product = {
   sortOrder?: number;
   isActive: boolean;
   isNew: boolean;
+  showOnHome?: boolean;
   isBestSeller?: boolean;
   lineInquiryText?: string;
   badge?: string;
@@ -82,6 +83,7 @@ export async function saveProducts(products: Product[]) {
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive,
     isNew: product.isNew,
+    ...(typeof product.showOnHome === "boolean" ? { showOnHome: product.showOnHome } : {}),
     ...(typeof product.isBestSeller === "boolean" ? { isBestSeller: product.isBestSeller } : {}),
     ...(product.lineInquiryText ? { lineInquiryText: product.lineInquiryText } : {})
   }));
@@ -97,7 +99,7 @@ export async function getProductBySlug(slug: string, { includeHidden = false } =
 export async function getProductsByFeature(feature: "new" | "best") {
   const products = await getAllProducts();
   return feature === "new"
-    ? products.filter((product) => product.isNew)
+    ? products.filter((product) => product.showOnHome ?? product.isNew)
     : products.filter((product) => product.isBestSeller);
 }
 

@@ -1,7 +1,16 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { Facebook, MessageCircle } from "lucide-react";
 import type { BrandSettings, SocialSettings } from "@/lib/settings";
 
 export function Footer({ brand, social }: { brand: BrandSettings; social: SocialSettings }) {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-stone bg-ivory">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-8 text-center sm:px-6 sm:py-10 lg:px-8">
@@ -20,7 +29,7 @@ export function Footer({ brand, social }: { brand: BrandSettings; social: Social
               href={social.lineUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-10 w-10 items-center justify-center border border-[#06C755] bg-[#06C755] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D] sm:h-11 sm:w-11"
+              className="inline-flex h-10 w-10 items-center justify-center border border-[#06C755] bg-[#06C755] text-white transition hover:opacity-90 sm:h-11 sm:w-11"
               aria-label="LINE"
             >
               <MessageCircle size={18} />
@@ -31,7 +40,7 @@ export function Footer({ brand, social }: { brand: BrandSettings; social: Social
               href={social.facebookUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-10 w-10 items-center justify-center border border-[#1877F2] bg-[#1877F2] text-white transition hover:border-[#166FE5] hover:bg-[#166FE5] sm:h-11 sm:w-11"
+              className="inline-flex h-10 w-10 items-center justify-center border border-[#1877F2] bg-[#1877F2] text-white transition hover:opacity-90 sm:h-11 sm:w-11"
               aria-label="Facebook"
             >
               <Facebook size={18} />

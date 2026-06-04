@@ -5,12 +5,15 @@ export type HomeSettings = {
   heroImage: string;
   heroTitle: string;
   heroSubtitle: string;
-  heroIntro: string;
+  heroDescription: string;
   primaryButtonText: string;
   primaryButtonLink: string;
   secondaryButtonText: string;
   secondaryButtonLink: string;
   newArrivalCount: number;
+  aboutTitle: string;
+  aboutContent: string;
+  aboutButtonText: string;
 };
 
 export type SocialSettings = {
@@ -24,6 +27,7 @@ export type SocialSettings = {
 export type BrandSettings = {
   siteName: string;
   logoText: string;
+  brandSubtitle: string;
   sinceYear: string;
   footerText: string;
   footerShowFacebook: boolean;
@@ -39,15 +43,18 @@ export type SeoSettings = {
 };
 
 export const defaultHomeSettings: HomeSettings = {
-  heroImage: "/uploads/branding/hero-rola-main.jpg",
+  heroImage: "/uploads/site/hero-boutique-showroom.png",
   heroTitle: "ROLA",
   heroSubtitle: "Timeless Elegance Since 2012",
-  heroIntro: "獻給懂得生活品味的妳，\n從日常到重要時刻，\n用質感穿搭展現自信與優雅。",
+  heroDescription: "獻給懂得生活品味的妳，\n從日常到重要時刻，\n用質感穿搭展現自信與優雅。",
   primaryButtonText: "探索新品",
-  primaryButtonLink: "/products?category=New%20Arrival",
+  primaryButtonLink: "/#new-arrival",
   secondaryButtonText: "LINE 一對一詢問",
   secondaryButtonLink: "https://line.me/R/ti/p/@sxg2195h",
-  newArrivalCount: 6
+  newArrivalCount: 8,
+  aboutTitle: "真正的優雅，不需要刻意張揚",
+  aboutContent: "ROLA Boutique 創立於 2012 年，獻給重視質感與生活品味的女性。從日常穿搭到重要場合，我們相信服裝不只是穿著，更是一種自信與態度。",
+  aboutButtonText: "了解品牌故事"
 };
 
 export const defaultSocialSettings: SocialSettings = {
@@ -61,6 +68,7 @@ export const defaultSocialSettings: SocialSettings = {
 export const defaultBrandSettings: BrandSettings = {
   siteName: "ROLA Boutique",
   logoText: "ROLA",
+  brandSubtitle: "BOUTIQUE",
   sinceYear: "2012",
   footerText: "© 2026 ROLA Boutique",
   footerShowFacebook: true,

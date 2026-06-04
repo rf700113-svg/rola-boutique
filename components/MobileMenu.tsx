@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Facebook, Menu, MessageCircle, X } from "lucide-react";
@@ -37,7 +37,7 @@ export function MobileMenu({ navItems }: { navItems: NavItem[] }) {
       <button
         className="relative z-[10003] flex h-12 min-h-12 w-12 min-w-12 items-center justify-center border border-stone text-charcoal xl:hidden"
         type="button"
-        aria-label={isOpen ? "關閉選單" : "開啟選單"}
+        aria-label={isOpen ? "???詨" : "???詨"}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}
       >
@@ -76,7 +76,7 @@ export function MobileMenu({ navItems }: { navItems: NavItem[] }) {
               target="_blank"
               rel="noreferrer"
               onClick={closeMenu}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 border border-[#06C755] bg-[#06C755] px-5 text-[15px] tracking-[0.08em] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D]"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 border border-[#06C755] bg-[#06C755] px-5 text-[15px] tracking-[0.08em] text-white transition hover:opacity-90"
             >
               <MessageCircle size={18} />
               LINE 一對一詢問
@@ -86,7 +86,7 @@ export function MobileMenu({ navItems }: { navItems: NavItem[] }) {
               target="_blank"
               rel="noreferrer"
               onClick={closeMenu}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 border border-[#1877F2] bg-[#1877F2] px-5 text-[15px] tracking-[0.08em] text-white transition hover:border-[#166FE5] hover:bg-[#166FE5]"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 border border-[#1877F2] bg-[#1877F2] px-5 text-[15px] tracking-[0.08em] text-white transition hover:opacity-90"
             >
               <Facebook size={18} />
               Facebook 最新穿搭
@@ -97,3 +97,4 @@ export function MobileMenu({ navItems }: { navItems: NavItem[] }) {
     </>
   );
 }
+
