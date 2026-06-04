@@ -4,36 +4,39 @@ import "./globals.css";
 import { FloatingLineButton } from "@/components/FloatingLineButton";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { getBrandSettings, getSeoSettings, getSocialSettings } from "@/lib/settings";
 
-const title = "ROLA Boutique｜質感女裝選品店";
-const description =
-  "ROLA Boutique Since 2012，專注質感與風格的女裝選品，提供新品穿搭、洋裝、外套與一對一 LINE 諮詢服務。";
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoSettings();
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-  title,
-  description,
-  icons: {
-    icon: [
-      { url: "/favicon.svg" },
-      { url: "/favicon.png", type: "image/png" }
-    ]
-  },
-  openGraph: {
-    title,
-    description,
-    images: ["/uploads/branding/hero-rola-main.jpg"]
-  }
-};
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+    title: seo.title,
+    description: seo.description,
+    icons: {
+      icon: [
+        { url: "/favicon.svg" },
+        { url: "/favicon.png", type: "image/png" }
+      ]
+    },
+    openGraph: {
+      title: seo.ogTitle || seo.title,
+      description: seo.ogDescription || seo.description,
+      images: seo.ogImage ? [seo.ogImage] : []
+    }
+  };
+}
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const [social, brand] = await Promise.all([getSocialSettings(), getBrandSettings()]);
+
   return (
     <html lang="zh-Hant">
       <body className="font-sans antialiased">
-        <Header />
+        <Header logoText={brand.logoText} lineUrl={social.lineUrl} />
         <main>{children}</main>
-        <Footer />
-        <FloatingLineButton />
+        <Footer brand={brand} social={social} />
+        {social.showLineButton ? <FloatingLineButton lineUrl={social.lineUrl} /> : null}
       </body>
     </html>
   );

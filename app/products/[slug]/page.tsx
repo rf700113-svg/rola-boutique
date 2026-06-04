@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, MessageCircle } from "lucide-react";
 import { ContactButtons } from "@/components/ContactButtons";
 import { ProductCard } from "@/components/ProductCard";
-import { createLineProductInquiryUrl } from "@/lib/contact";
-import { formatPrice, getAllProducts, getProductBySlug } from "@/lib/products";
+import { formatPrice, getAllProducts, getCategoryLabel, getProductBySlug } from "@/lib/products";
+import { getSocialSettings } from "@/lib/settings";
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
@@ -14,6 +14,12 @@ type ProductPageProps = {
 const fallbackProductImage = "/uploads/products/rola-look-01.jpg";
 
 export const dynamic = "force-dynamic";
+
+function createInquiryUrl(productName: string, lineUrl: string, customText?: string) {
+  const message = customText || `我想詢問這件商品：${productName}`;
+  const separator = lineUrl.includes("?") ? "&" : "?";
+  return `${lineUrl}${separator}text=${encodeURIComponent(message)}`;
+}
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
@@ -32,6 +38,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const social = await getSocialSettings();
   const imageSrc = product.image && !product.image.startsWith("/placeholders/")
     ? product.image
     : fallbackProductImage;
@@ -67,7 +74,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {product.badge}
                 </p>
               ) : null}
-              <p className="text-sm text-charcoal/50">{product.category}</p>
+              <p className="text-sm text-charcoal/50">{getCategoryLabel(product.category)}</p>
               <h1 className="mt-3 font-serif text-3xl leading-tight text-charcoal sm:text-5xl">
                 {product.name}
               </h1>
@@ -99,7 +106,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
               <div className="mt-8 grid gap-3">
                 <a
-                  href={createLineProductInquiryUrl(product.name)}
+                  href={createInquiryUrl(product.name, social.lineUrl, product.lineInquiryText)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#06C755] px-6 py-4 text-sm tracking-[0.12em] text-white transition hover:brightness-95"
@@ -107,7 +114,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <MessageCircle size={19} />
                   用 LINE 詢問這件商品
                 </a>
-                <ContactButtons />
+                <ContactButtons social={social} />
               </div>
             </div>
           </div>
@@ -117,7 +124,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <h2 className="font-serif text-3xl text-charcoal">相關商品</h2>
               <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
                 {related.map((item) => (
-                  <ProductCard key={item.id} product={item} />
+                  <ProductCard key={item.id} product={item} lineUrl={social.lineUrl} />
                 ))}
               </div>
             </section>

@@ -1,15 +1,15 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { categories, categoryOptions, type ProductCategory } from "@/lib/product-categories";
+import { categories, categoryOptions, getCategoryLabel, type ProductCategory } from "@/lib/product-categories";
 
 export type { ProductCategory };
-export { categories, categoryOptions };
+export { categories, categoryOptions, getCategoryLabel };
 
 export type Product = {
   id: number;
   slug: string;
   name: string;
-  price: number;
+  price: number | null;
   category: ProductCategory;
   sizes: string[];
   colors: string[];
@@ -18,12 +18,22 @@ export type Product = {
   sortOrder?: number;
   isActive: boolean;
   isNew: boolean;
-  isBestSeller: boolean;
+  isBestSeller?: boolean;
+  lineInquiryText?: string;
   badge?: string;
   featured?: "new" | "best";
 };
 
 const productsFilePath = path.join(process.cwd(), "data", "products.json");
+
+async function ensureProductsFile() {
+  await fs.mkdir(path.dirname(productsFilePath), { recursive: true });
+  try {
+    await fs.access(productsFilePath);
+  } catch {
+    await fs.writeFile(productsFilePath, "[]\n", "utf8");
+  }
+}
 
 function hydrateProduct(product: Product): Product {
   return {
@@ -42,19 +52,14 @@ function sortProducts(products: Product[]) {
       return (a.sortOrder as number) - (b.sortOrder as number);
     }
 
-    if (aHasSort && !bHasSort) {
-      return -1;
-    }
-
-    if (!aHasSort && bHasSort) {
-      return 1;
-    }
-
+    if (aHasSort && !bHasSort) return -1;
+    if (!aHasSort && bHasSort) return 1;
     return b.id - a.id;
   });
 }
 
 export async function getAllProducts({ includeHidden = false } = {}) {
+  await ensureProductsFile();
   const content = await fs.readFile(productsFilePath, "utf8");
   const products = JSON.parse(content) as Product[];
   const hydrated = sortProducts(products.map(hydrateProduct));
@@ -63,6 +68,7 @@ export async function getAllProducts({ includeHidden = false } = {}) {
 }
 
 export async function saveProducts(products: Product[]) {
+  await ensureProductsFile();
   const persistedProducts = products.map((product) => ({
     id: product.id,
     slug: product.slug,
@@ -76,7 +82,8 @@ export async function saveProducts(products: Product[]) {
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive,
     isNew: product.isNew,
-    isBestSeller: product.isBestSeller
+    ...(typeof product.isBestSeller === "boolean" ? { isBestSeller: product.isBestSeller } : {}),
+    ...(product.lineInquiryText ? { lineInquiryText: product.lineInquiryText } : {})
   }));
 
   await fs.writeFile(productsFilePath, `${JSON.stringify(persistedProducts, null, 2)}\n`, "utf8");
@@ -94,7 +101,11 @@ export async function getProductsByFeature(feature: "new" | "best") {
     : products.filter((product) => product.isBestSeller);
 }
 
-export function formatPrice(price: number) {
+export function formatPrice(price: number | null | undefined) {
+  if (price === null || typeof price === "undefined") {
+    return "請洽 LINE";
+  }
+
   return new Intl.NumberFormat("zh-TW", {
     style: "currency",
     currency: "TWD",
@@ -108,7 +119,7 @@ export function toArrayFromInput(value: FormDataEntryValue | null) {
   }
 
   return value
-    .split(/[,\n，、]/)
+    .split(/[,，\n]/)
     .map((item) => item.trim())
     .filter(Boolean);
 }

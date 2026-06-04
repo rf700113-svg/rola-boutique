@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 import { categories, getAllProducts, type ProductCategory } from "@/lib/products";
+import { getSocialSettings } from "@/lib/settings";
 
 type ProductsPageProps = {
   searchParams?: Promise<{ category?: string }>;
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
-  const products = await getAllProducts();
+  const [products, social] = await Promise.all([getAllProducts(), getSocialSettings()]);
   const selected = params?.category ?? "All";
   const allowed = categories.map((category) => category.value);
   const activeCategory = allowed.includes(selected as ProductCategory | "All") ? selected : "All";
@@ -23,10 +24,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     <div className="bg-cream">
       <section className="border-b border-stone px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <p className="text-xs uppercase tracking-[0.3em] text-champagne">Collection</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-champagne">Products</p>
           <h1 className="mt-4 font-serif text-4xl text-charcoal sm:text-6xl">商品選購</h1>
           <p className="mt-6 max-w-2xl leading-8 text-charcoal/70">
-            以俐落版型、柔和色調與成熟比例，為日常到重要時刻挑選耐看的精品女裝。
+            瀏覽 ROLA Boutique 精選女裝，挑選適合日常與重要場合的質感穿搭。
           </p>
         </div>
       </section>
@@ -64,7 +65,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
           <div className="grid gap-x-5 gap-y-11 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} lineUrl={social.lineUrl} />
             ))}
           </div>
         </div>

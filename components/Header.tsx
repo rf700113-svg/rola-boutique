@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MobileMenu } from "@/components/MobileMenu";
-import { lineUrl } from "@/lib/contact";
 
 type NavItem = {
   href: string;
@@ -13,20 +12,23 @@ type NavItem = {
   external?: boolean;
 };
 
-const navItems: NavItem[] = [
-  { href: "/", label: "首頁" },
-  { href: "/products?category=New%20Arrival", label: "新品上市" },
-  { href: "/products?category=Dresses", label: "洋裝" },
-  { href: "/products?category=Tops", label: "上衣" },
-  { href: "/products?category=Bottoms", label: "褲裝" },
-  { href: "/products?category=Outerwear", label: "外套" },
-  { href: lineUrl, label: "LINE諮詢", external: true }
-];
+function buildNavItems(lineUrl: string): NavItem[] {
+  return [
+    { href: "/", label: "首頁" },
+    { href: "/products?category=New%20Arrival", label: "新品上市" },
+    { href: "/products?category=Dresses", label: "洋裝" },
+    { href: "/products?category=Tops", label: "上衣" },
+    { href: "/products?category=Bottoms", label: "褲裝" },
+    { href: "/products?category=Outerwear", label: "外套" },
+    { href: lineUrl, label: "LINE諮詢", external: true }
+  ];
+}
 
-export function Header() {
+export function Header({ logoText, lineUrl }: { logoText: string; lineUrl: string }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(!isHome);
+  const navItems = buildNavItems(lineUrl);
 
   useEffect(() => {
     if (!isHome) {
@@ -58,7 +60,7 @@ export function Header() {
           aria-label="ROLA Boutique 首頁"
           className={`font-playfair text-[28px] leading-none tracking-[0.28em] text-charcoal sm:text-[34px] sm:tracking-[0.32em] ${desktopLogoClass}`}
         >
-          ROLA
+          {logoText}
         </Link>
 
         <nav className={`hidden items-center gap-5 text-[15px] font-medium tracking-[0.08em] transition xl:flex ${desktopNavClass}`}>

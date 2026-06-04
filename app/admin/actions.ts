@@ -11,16 +11,45 @@ import {
   saveProducts,
   toArrayFromInput
 } from "@/lib/products";
-import { getSiteSettings, saveSiteSettings } from "@/lib/site-settings";
+import {
+  getBrandSettings,
+  getHomeSettings,
+  getSeoSettings,
+  getSocialSettings,
+  saveBrandSettings,
+  saveHomeSettings,
+  saveSeoSettings,
+  saveSocialSettings
+} from "@/lib/settings";
 import { saveUploadedImage } from "@/lib/upload";
+
+type AdminTab = "products" | "home" | "social" | "brand" | "seo";
 
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
 }
 
-function errorRedirect(tab: "products" | "branding", error: unknown) {
-  const message = error instanceof Error ? error.message : "儲存失敗，請稍後再試。";
+function getNumberOrUndefined(formData: FormData, key: string) {
+  const value = getString(formData, key);
+  if (value === "") return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+
+function getPrice(formData: FormData) {
+  const value = getString(formData, "price");
+  if (value === "") return null;
+  const price = Number(value);
+  return Number.isFinite(price) ? price : null;
+}
+
+function getCheckbox(formData: FormData, key: string) {
+  return formData.get(key) === "on";
+}
+
+function redirectWithError(tab: AdminTab, error: unknown) {
+  const message = error instanceof Error ? error.message : "儲存時發生錯誤，請稍後再試。";
   redirect(`/admin?tab=${tab}&errorMessage=${encodeURIComponent(message)}`);
 }
 
@@ -40,23 +69,27 @@ function revalidateStorefront() {
 function buildProductFromForm(formData: FormData, existing?: Product): Product {
   const id = existing?.id ?? Date.now();
   const name = getString(formData, "name");
-  const sortValue = getString(formData, "sortOrder");
-  const sortOrder = sortValue === "" ? undefined : Number(sortValue);
+  const sortOrder = getNumberOrUndefined(formData, "sortOrder");
+
+  if (!name) {
+    throw new Error("請輸入商品名稱。");
+  }
 
   return {
     id,
     slug: existing?.slug || createSlug(name, id),
     name,
-    price: Number(getString(formData, "price")) || 0,
+    price: getPrice(formData),
     category: getString(formData, "category") as ProductCategory,
     sizes: toArrayFromInput(formData.get("sizes")),
     colors: toArrayFromInput(formData.get("colors")),
     description: getString(formData, "description"),
     image: existing?.image || "/uploads/products/rola-look-01.jpg",
-    ...(Number.isFinite(sortOrder) ? { sortOrder } : {}),
-    isActive: formData.get("isActive") === "on",
-    isNew: formData.get("isNew") === "on",
-    isBestSeller: formData.get("isBestSeller") === "on"
+    ...(typeof sortOrder === "number" ? { sortOrder } : {}),
+    isActive: getCheckbox(formData, "isActive"),
+    isNew: getCheckbox(formData, "isNew"),
+    isBestSeller: getCheckbox(formData, "isBestSeller"),
+    lineInquiryText: getString(formData, "lineInquiryText")
   };
 }
 
@@ -87,10 +120,6 @@ export async function saveProductAction(formData: FormData) {
     const product = buildProductFromForm(formData, existing);
     const uploadedImage = await saveUploadedImage(formData.get("imageFile"), "products");
 
-    if (!product.name) {
-      throw new Error("請輸入商品名稱。");
-    }
-
     if (uploadedImage) {
       product.image = uploadedImage;
     }
@@ -101,7 +130,7 @@ export async function saveProductAction(formData: FormData) {
       await saveProducts([product, ...products]);
     }
   } catch (error) {
-    errorRedirect("products", error);
+    redirectWithError("products", error);
   }
 
   revalidateStorefront();
@@ -116,38 +145,99 @@ export async function deleteProductAction(formData: FormData) {
     const products = await getAllProducts({ includeHidden: true });
     await saveProducts(products.filter((product) => product.id !== id));
   } catch (error) {
-    errorRedirect("products", error);
+    redirectWithError("products", error);
   }
 
   revalidateStorefront();
   redirect("/admin?tab=products&deleted=1");
 }
 
-export async function saveSiteSettingsAction(formData: FormData) {
+export async function saveHomeSettingsAction(formData: FormData) {
   await ensureAdmin();
 
   try {
-    const existing = await getSiteSettings();
-    const logoImage = await saveUploadedImage(formData.get("logoImageFile"), "branding", { allowSvg: true });
-    const heroImage = await saveUploadedImage(formData.get("heroImageFile"), "branding");
-    const faviconImage = await saveUploadedImage(formData.get("faviconImageFile"), "branding", { allowSvg: true });
+    const existing = await getHomeSettings();
+    const heroImage = await saveUploadedImage(formData.get("heroImageFile"), "site");
+    const newArrivalCount = Number(getString(formData, "newArrivalCount")) || existing.newArrivalCount;
 
-    await saveSiteSettings({
-      logoImage: logoImage || existing.logoImage,
+    await saveHomeSettings({
       heroImage: heroImage || existing.heroImage,
-      faviconImage: faviconImage || existing.faviconImage,
       heroTitle: getString(formData, "heroTitle") || existing.heroTitle,
       heroSubtitle: getString(formData, "heroSubtitle") || existing.heroSubtitle,
-      heroIntro: getString(formData, "heroIntro") || existing.heroIntro,
+      heroIntro: getString(formData, "heroIntro"),
       primaryButtonText: getString(formData, "primaryButtonText") || existing.primaryButtonText,
+      primaryButtonLink: getString(formData, "primaryButtonLink") || existing.primaryButtonLink,
       secondaryButtonText: getString(formData, "secondaryButtonText") || existing.secondaryButtonText,
-      brandStoryTitle: getString(formData, "brandStoryTitle") || existing.brandStoryTitle,
-      brandStoryContent: getString(formData, "brandStoryContent") || existing.brandStoryContent
+      secondaryButtonLink: getString(formData, "secondaryButtonLink") || existing.secondaryButtonLink,
+      newArrivalCount: Math.max(1, Math.min(24, newArrivalCount))
     });
   } catch (error) {
-    errorRedirect("branding", error);
+    redirectWithError("home", error);
   }
 
   revalidateStorefront();
-  redirect("/admin?tab=branding&saved=1");
+  redirect("/admin?tab=home&saved=1");
+}
+
+export async function saveSocialSettingsAction(formData: FormData) {
+  await ensureAdmin();
+
+  try {
+    const existing = await getSocialSettings();
+    await saveSocialSettings({
+      lineUrl: getString(formData, "lineUrl") || existing.lineUrl,
+      facebookUrl: getString(formData, "facebookUrl") || existing.facebookUrl,
+      instagramUrl: getString(formData, "instagramUrl"),
+      showFacebookButton: getCheckbox(formData, "showFacebookButton"),
+      showLineButton: getCheckbox(formData, "showLineButton")
+    });
+  } catch (error) {
+    redirectWithError("social", error);
+  }
+
+  revalidateStorefront();
+  redirect("/admin?tab=social&saved=1");
+}
+
+export async function saveBrandSettingsAction(formData: FormData) {
+  await ensureAdmin();
+
+  try {
+    const existing = await getBrandSettings();
+    await saveBrandSettings({
+      siteName: getString(formData, "siteName") || existing.siteName,
+      logoText: getString(formData, "logoText") || existing.logoText,
+      sinceYear: getString(formData, "sinceYear") || existing.sinceYear,
+      footerText: getString(formData, "footerText") || existing.footerText,
+      footerShowFacebook: getCheckbox(formData, "footerShowFacebook"),
+      footerShowLine: getCheckbox(formData, "footerShowLine")
+    });
+  } catch (error) {
+    redirectWithError("brand", error);
+  }
+
+  revalidateStorefront();
+  redirect("/admin?tab=brand&saved=1");
+}
+
+export async function saveSeoSettingsAction(formData: FormData) {
+  await ensureAdmin();
+
+  try {
+    const existing = await getSeoSettings();
+    const ogImage = await saveUploadedImage(formData.get("ogImageFile"), "site");
+
+    await saveSeoSettings({
+      title: getString(formData, "title") || existing.title,
+      description: getString(formData, "description") || existing.description,
+      ogImage: ogImage || existing.ogImage,
+      ogTitle: getString(formData, "ogTitle") || existing.ogTitle,
+      ogDescription: getString(formData, "ogDescription") || existing.ogDescription
+    });
+  } catch (error) {
+    redirectWithError("seo", error);
+  }
+
+  revalidateStorefront();
+  redirect("/admin?tab=seo&saved=1");
 }

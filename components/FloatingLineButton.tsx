@@ -1,7 +1,6 @@
 import { MessageCircle } from "lucide-react";
-import { lineUrl } from "@/lib/contact";
 
-export function FloatingLineButton() {
+export function FloatingLineButton({ lineUrl }: { lineUrl: string }) {
   return (
     <a
       href={lineUrl}

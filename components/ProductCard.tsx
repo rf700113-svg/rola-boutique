@@ -1,15 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
-import { createLineProductInquiryUrl } from "@/lib/contact";
-import { type Product, formatPrice } from "@/lib/products";
+import { lineUrl as fallbackLineUrl } from "@/lib/contact";
+import { getCategoryLabel, type Product, formatPrice } from "@/lib/products";
 
 const fashionFallbacks: Record<string, string> = {
-  "New Arrival": "/uploads/products/rola-look-01.jpg",
-  Tops: "/uploads/products/rola-look-02.jpg",
-  Bottoms: "/uploads/products/rola-look-12.jpg",
   Dresses: "/uploads/products/rola-look-09.jpg",
-  Outerwear: "/uploads/products/rola-look-10.jpg",
+  Tops: "/uploads/products/rola-look-02.jpg",
+  Bottoms: "/uploads/products/rola-look-10.jpg",
+  Outerwear: "/uploads/products/rola-look-01.jpg",
+  Accessories: "/uploads/products/rola-look-12.jpg",
   Sale: "/uploads/products/rola-look-11.jpg"
 };
 
@@ -19,7 +19,13 @@ function getDisplayImage(product: Product) {
     : fashionFallbacks[product.category];
 }
 
-export function ProductCard({ product, rank }: { product: Product; rank?: number }) {
+function createInquiryUrl(product: Product, lineUrl: string) {
+  const message = product.lineInquiryText || `我想詢問這件商品：${product.name}`;
+  const separator = lineUrl.includes("?") ? "&" : "?";
+  return `${lineUrl}${separator}text=${encodeURIComponent(message)}`;
+}
+
+export function ProductCard({ product, rank, lineUrl = fallbackLineUrl }: { product: Product; rank?: number; lineUrl?: string }) {
   const badge = rank ? `No.${rank}` : product.isNew ? "NEW" : product.isBestSeller ? "BEST" : "";
 
   return (
@@ -41,7 +47,7 @@ export function ProductCard({ product, rank }: { product: Product; rank?: number
         </div>
       </Link>
       <div className="flex min-h-[140px] flex-col p-3 pt-3.5 sm:min-h-[160px] sm:p-4 sm:pt-5">
-        <p className="text-[10px] uppercase tracking-[0.14em] text-charcoal/45 sm:text-xs">{product.category}</p>
+        <p className="text-[10px] uppercase tracking-[0.14em] text-charcoal/45 sm:text-xs">{getCategoryLabel(product.category)}</p>
         <Link href={`/products/${product.slug}`}>
           <h3 className="mt-1 line-clamp-2 text-[13px] font-medium leading-5 text-charcoal transition hover:text-champagne sm:text-base sm:leading-6">
             {product.name}
@@ -51,7 +57,7 @@ export function ProductCard({ product, rank }: { product: Product; rank?: number
           {formatPrice(product.price)}
         </p>
         <a
-          href={createLineProductInquiryUrl(product.name)}
+          href={createInquiryUrl(product, lineUrl)}
           target="_blank"
           rel="noreferrer"
           className="mt-3 inline-flex w-fit items-center gap-1.5 border border-[#06C755] bg-[#06C755] px-2.5 py-1.5 text-[11px] tracking-[0.08em] text-white transition hover:border-[#05B54D] hover:bg-[#05B54D] sm:mt-4 sm:gap-2 sm:px-3 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
