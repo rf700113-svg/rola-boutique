@@ -12,7 +12,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <Header logoText={brand.logoText} brandSubtitle={brand.brandSubtitle} lineUrl={social.lineUrl} />
       <main>{children}</main>
       <Footer brand={brand} social={social} />
-      {social.showLineButton ? <FloatingLineButton lineUrl={social.lineUrl} /> : null}
+      {social.showFloatingLine ? <FloatingLineButton lineUrl={social.lineUrl} /> : null}
     </>
   );
 }

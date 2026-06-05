@@ -24,7 +24,7 @@ import {
   saveSeoSettings,
   saveSocialSettings
 } from "@/lib/settings";
-import { saveUploadedImage } from "@/lib/upload";
+import { saveSiteImage } from "@/lib/settings";
 
 type AdminTab = "products" | "home" | "social" | "brand" | "seo";
 type ToggleField = "isActive" | "isNew" | "showOnHome";
@@ -185,11 +185,13 @@ export async function saveHomeSettingsAction(formData: FormData) {
 
   try {
     const existing = await getHomeSettings();
-    const heroImage = await saveUploadedImage(formData.get("heroImageFile"), "site");
+    const existingBrand = await getBrandSettings();
+    const heroImage = await saveSiteImage(formData.get("heroImageFile"));
     const newArrivalCount = Number(getString(formData, "newArrivalCount")) || existing.newArrivalCount;
 
     await saveHomeSettings({
       heroImage: heroImage || existing.heroImage,
+      heroKicker: getString(formData, "heroKicker") || existing.heroKicker,
       heroTitle: getString(formData, "heroTitle") || existing.heroTitle,
       heroSubtitle: getString(formData, "heroSubtitle") || existing.heroSubtitle,
       heroDescription: getString(formData, "heroDescription"),
@@ -198,9 +200,21 @@ export async function saveHomeSettingsAction(formData: FormData) {
       secondaryButtonText: getString(formData, "secondaryButtonText") || existing.secondaryButtonText,
       secondaryButtonLink: getString(formData, "secondaryButtonLink") || existing.secondaryButtonLink,
       newArrivalCount: Math.max(1, Math.min(8, newArrivalCount)),
+      lineTitle: getString(formData, "lineTitle") || existing.lineTitle,
+      lineSubtitle: getString(formData, "lineSubtitle") || existing.lineSubtitle,
+      lineButtonText: getString(formData, "lineButtonText") || existing.lineButtonText,
+      facebookButtonText: getString(formData, "facebookButtonText") || existing.facebookButtonText,
+      footerText: getString(formData, "footerText") || existing.footerText,
       aboutTitle: getString(formData, "aboutTitle") || existing.aboutTitle,
       aboutContent: getString(formData, "aboutContent") || existing.aboutContent,
       aboutButtonText: getString(formData, "aboutButtonText") || existing.aboutButtonText
+    });
+
+    await saveBrandSettings({
+      ...existingBrand,
+      logoText: getString(formData, "logoText") || existingBrand.logoText,
+      brandSubtitle: getString(formData, "brandSubtitle") || existingBrand.brandSubtitle,
+      footerText: getString(formData, "footerText") || existingBrand.footerText
     });
   } catch (error) {
     redirectWithError("home", error);
@@ -220,7 +234,8 @@ export async function saveSocialSettingsAction(formData: FormData) {
       facebookUrl: getString(formData, "facebookUrl") || existing.facebookUrl,
       instagramUrl: getString(formData, "instagramUrl"),
       showFacebookButton: getCheckbox(formData, "showFacebookButton"),
-      showLineButton: getCheckbox(formData, "showLineButton")
+      showLineButton: getCheckbox(formData, "showLineButton"),
+      showFloatingLine: getCheckbox(formData, "showFloatingLine")
     });
   } catch (error) {
     redirectWithError("social", error);
@@ -257,7 +272,7 @@ export async function saveSeoSettingsAction(formData: FormData) {
 
   try {
     const existing = await getSeoSettings();
-    const ogImage = await saveUploadedImage(formData.get("ogImageFile"), "site");
+    const ogImage = await saveSiteImage(formData.get("ogImageFile"));
 
     await saveSeoSettings({
       title: getString(formData, "title") || existing.title,

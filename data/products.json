@@ -1,5 +1,22 @@
 [
   {
+    "id": "bdb36a85-2148-46d4-a295-781722ca5be9",
+    "slug": "product-bdb36a85-2148-46d4-a295-781722ca5be9",
+    "name": "小娃",
+    "price": "99",
+    "category": "Dresses",
+    "sizes": [],
+    "colors": [],
+    "description": "",
+    "image": "/uploads/products/1780635461623-dc21d9b6-a712-46d1-9e29-81bf0d4c3554.jpeg",
+    "sortOrder": -2,
+    "isActive": true,
+    "isNew": true,
+    "showOnHome": true,
+    "isBestSeller": false,
+    "updatedAt": "2026-06-05T04:57:50.062Z"
+  },
+  {
     "id": "0de7a847-f901-4f14-b185-4e7c83235814",
     "slug": "product-0de7a847-f901-4f14-b185-4e7c83235814",
     "name": "小娃",
@@ -14,7 +31,7 @@
     "isNew": true,
     "showOnHome": true,
     "isBestSeller": false,
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "101",
@@ -39,7 +56,7 @@
     "showOnHome": true,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：米白俐落西裝外套",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "102",
@@ -65,7 +82,7 @@
     "showOnHome": true,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：香檳緞面修身上衣",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "103",
@@ -90,7 +107,7 @@
     "showOnHome": true,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：奶油壓褶中長洋裝",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "104",
@@ -115,7 +132,7 @@
     "showOnHome": true,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：奶茶色長版風衣外套",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "105",
@@ -138,7 +155,7 @@
     "showOnHome": true,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：柔霧針織短外套",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "106",
@@ -162,7 +179,7 @@
     "showOnHome": true,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：黑色垂墜晚宴洋裝",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "107",
@@ -187,7 +204,7 @@
     "showOnHome": false,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：亞麻感休閒襯衫",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   },
   {
     "id": "108",
@@ -211,6 +228,6 @@
     "showOnHome": false,
     "isBestSeller": false,
     "lineInquiryText": "我想詢問這件商品：鼠尾草綠修身外套",
-    "updatedAt": "2026-06-05T03:55:30.809Z"
+    "updatedAt": "2026-06-05T04:57:50.062Z"
   }
 ]

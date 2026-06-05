@@ -1,6 +1,13 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { categories, categoryOptions, getCategoryLabel, type ProductCategory } from "@/lib/product-categories";
+import { uploadSupabaseImage, validateImageFile } from "@/lib/supabase/admin";
+import {
+  getSupabaseRestHeaders,
+  getSupabaseStatus,
+  normalizeSupabaseError,
+  supabaseMissingMessage
+} from "@/lib/supabase/server";
 
 export type { ProductCategory };
 export { categories, categoryOptions, getCategoryLabel };
@@ -46,52 +53,9 @@ type SupabaseProductRow = {
 };
 
 const productsFilePath = path.join(process.cwd(), "data", "products.json");
-const productImageBucket = "product-images";
-const maxImageSize = 5 * 1024 * 1024;
-const allowedImageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
-const supabaseMissingMessage = "尚未設定 Supabase，請先設定資料庫連線。";
-
-function getSupabaseConfig() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? "";
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-
-  return {
-    url,
-    anonKey,
-    serviceRoleKey,
-    configured: Boolean(url && anonKey && serviceRoleKey)
-  };
-}
 
 export function getProductStoreStatus() {
-  const config = getSupabaseConfig();
-  const requiresSupabase = process.env.NODE_ENV === "production";
-
-  return {
-    mode: config.configured ? "supabase" : "json",
-    configured: config.configured,
-    requiresSupabase,
-    message: !config.configured && requiresSupabase ? supabaseMissingMessage : ""
-  };
-}
-
-function getSupabaseHeaders() {
-  const config = getSupabaseConfig();
-
-  if (!config.configured) {
-    throw new Error(supabaseMissingMessage);
-  }
-
-  return {
-    config,
-    headers: {
-      apikey: config.serviceRoleKey,
-      Authorization: `Bearer ${config.serviceRoleKey}`,
-      "Content-Type": "application/json"
-    }
-  };
+  return getSupabaseStatus();
 }
 
 function assertWritableStore() {
@@ -112,6 +76,15 @@ async function ensureProductsFile() {
 }
 
 function normalizeCategory(category: string | null | undefined): ProductCategory {
+  const zhMap: Record<string, ProductCategory> = {
+    洋裝: "Dresses",
+    上衣: "Tops",
+    褲裝: "Bottoms",
+    外套: "Outerwear",
+    配件: "Accessories",
+    特價: "Sale"
+  };
+  if (category && zhMap[category]) return zhMap[category];
   const allowed = categoryOptions.map((item) => item.value);
   return allowed.includes(category as ProductCategory) ? (category as ProductCategory) : "Dresses";
 }
@@ -222,12 +195,13 @@ function sortProducts(products: Product[]) {
 }
 
 async function fetchSupabaseProducts() {
-  const { config, headers } = getSupabaseHeaders();
+  const { config, headers } = getSupabaseRestHeaders();
   const url = `${config.url}/rest/v1/products?select=*&order=sort_order.asc.nullslast,created_at.desc`;
   const response = await fetch(url, { headers, cache: "no-store" });
 
   if (!response.ok) {
-    throw new Error(`Supabase 商品讀取失敗：${response.status}`);
+    const detail = await response.text();
+    throw new Error(normalizeSupabaseError(response.status, detail));
   }
 
   const rows = (await response.json()) as SupabaseProductRow[];
@@ -261,7 +235,7 @@ export async function saveProduct(product: Product) {
   const status = getProductStoreStatus();
 
   if (status.configured) {
-    const { config, headers } = getSupabaseHeaders();
+    const { config, headers } = getSupabaseRestHeaders();
     const response = await fetch(`${config.url}/rest/v1/products`, {
       method: "POST",
       headers: {
@@ -273,7 +247,7 @@ export async function saveProduct(product: Product) {
 
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(`Supabase 商品儲存失敗：${response.status} ${detail}`);
+      throw new Error(normalizeSupabaseError(response.status, detail));
     }
 
     return;
@@ -316,7 +290,7 @@ export async function deleteProductById(id: string) {
   const status = getProductStoreStatus();
 
   if (status.configured) {
-    const { config, headers } = getSupabaseHeaders();
+    const { config, headers } = getSupabaseRestHeaders();
     const response = await fetch(`${config.url}/rest/v1/products?id=eq.${encodeURIComponent(id)}`, {
       method: "DELETE",
       headers
@@ -324,7 +298,7 @@ export async function deleteProductById(id: string) {
 
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(`Supabase 商品刪除失敗：${response.status} ${detail}`);
+      throw new Error(normalizeSupabaseError(response.status, detail));
     }
 
     return;
@@ -340,39 +314,13 @@ export async function saveProductImage(file: FormDataEntryValue | null) {
     return "";
   }
 
-  const extension = path.extname(file.name).toLowerCase();
-
-  if (!allowedImageExtensions.has(extension) || (file.type && !allowedImageTypes.has(file.type))) {
-    throw new Error("商品圖片只能上傳 jpg、jpeg、png、webp。");
-  }
-
-  if (file.size > maxImageSize) {
-    throw new Error("圖片檔案太大，請壓縮到 5MB 以下再上傳。");
-  }
+  const extension = validateImageFile(file);
 
   const status = getProductStoreStatus();
   const safeName = `${Date.now()}-${crypto.randomUUID()}${extension}`;
 
   if (status.configured) {
-    const { config } = getSupabaseHeaders();
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const response = await fetch(`${config.url}/storage/v1/object/${productImageBucket}/${safeName}`, {
-      method: "POST",
-      headers: {
-        apikey: config.serviceRoleKey,
-        Authorization: `Bearer ${config.serviceRoleKey}`,
-        "Content-Type": file.type || "application/octet-stream",
-        "x-upsert": "true"
-      },
-      body: buffer
-    });
-
-    if (!response.ok) {
-      const detail = await response.text();
-      throw new Error(`Supabase 圖片上傳失敗：${response.status} ${detail}`);
-    }
-
-    return `${config.url}/storage/v1/object/public/${productImageBucket}/${safeName}`;
+    return uploadSupabaseImage(file, "product-images");
   }
 
   assertWritableStore();

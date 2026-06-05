@@ -15,7 +15,7 @@ type NavItem = {
 function buildNavItems(lineUrl: string): NavItem[] {
   return [
     { href: "/", label: "首頁" },
-    { href: "/#new-arrival", label: "新品上市" },
+    { href: "/#new-arrivals", label: "新品上市" },
     { href: "/products?category=Dresses", label: "洋裝" },
     { href: "/products?category=Tops", label: "上衣" },
     { href: "/products?category=Bottoms", label: "褲裝" },
@@ -59,11 +59,7 @@ export function Header({ logoText, brandSubtitle, lineUrl }: { logoText: string;
       }`}
     >
       <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-[18px] sm:h-auto sm:px-6 sm:py-4 lg:px-10">
-        <Link
-          href="/"
-          aria-label="ROLA Boutique 首頁"
-          className={`flex flex-col leading-none text-charcoal ${desktopLogoClass}`}
-        >
+        <Link href="/" aria-label="ROLA Boutique 首頁" className={`flex flex-col leading-none text-charcoal ${desktopLogoClass}`}>
           <span className="font-playfair text-[30px] font-light tracking-[0.32em] sm:text-[42px] sm:tracking-[0.35em]">
             {logoText}
           </span>
