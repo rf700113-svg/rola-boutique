@@ -11,7 +11,7 @@ import {
   getAllProducts,
   normalizePrice,
   saveProduct,
-  saveProductImage,
+  saveProductImages,
   toArrayFromInput
 } from "@/lib/products";
 import {
@@ -45,6 +45,24 @@ function getNumberOrUndefined(formData: FormData, key: string) {
   return Number.isFinite(number) ? number : undefined;
 }
 
+function getExistingImagesFromForm(formData: FormData) {
+  return formData
+    .getAll("existingImages")
+    .map((value, index) => {
+      const url = typeof value === "string" ? value.trim() : "";
+      const sortValue = Number(getString(formData, `imageSort-${index}`));
+      const remove = getCheckbox(formData, `removeImage-${index}`);
+      return {
+        url,
+        sortOrder: Number.isFinite(sortValue) ? sortValue : index + 1,
+        remove
+      };
+    })
+    .filter((item) => item.url && !item.remove)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => item.url);
+}
+
 function redirectWithError(tab: AdminTab, error: unknown) {
   const message = error instanceof Error ? error.message : "儲存失敗，請稍後再試。";
   const path = tab === "products" ? "/admin/products" : "/admin/settings";
@@ -66,7 +84,7 @@ function revalidateStorefront() {
   revalidatePath("/admin/settings");
 }
 
-function buildProductFromForm(formData: FormData, existing?: Product): Product {
+function buildProductFromForm(formData: FormData, existing?: Product, images?: string[]): Product {
   const id = existing?.id ?? crypto.randomUUID();
   const name = getString(formData, "name");
   const sortOrder = getNumberOrUndefined(formData, "sortOrder");
@@ -84,7 +102,8 @@ function buildProductFromForm(formData: FormData, existing?: Product): Product {
     sizes: toArrayFromInput(formData.get("sizes")),
     colors: toArrayFromInput(formData.get("colors")),
     description: getString(formData, "description"),
-    image: existing?.image || "/uploads/products/rola-look-01.jpg",
+    image: images?.[0] || existing?.image || "/uploads/products/rola-look-01.jpg",
+    images: images ?? existing?.images ?? [],
     ...(typeof sortOrder === "number" ? { sortOrder } : {}),
     isActive: getCheckbox(formData, "isActive"),
     isNew: getCheckbox(formData, "isNew"),
@@ -118,13 +137,18 @@ export async function saveProductAction(formData: FormData) {
     const products = await getAllProducts({ includeHidden: true });
     const idValue = getString(formData, "id");
     const existing = idValue ? products.find((product) => product.id === idValue) : undefined;
-    const product = buildProductFromForm(formData, existing);
-    const uploadedImage = await saveProductImage(formData.get("imageFile"));
+    const existingImages = getExistingImagesFromForm(formData);
+    const fallbackExistingImages = existing?.images?.length ? existing.images : existing?.image ? [existing.image] : [];
+    const baseImages = existingImages.length > 0 || formData.has("existingImages") ? existingImages : fallbackExistingImages;
+    const uploadedImages = await saveProductImages(formData.getAll("imageFiles"));
+    const nextImages = [...baseImages, ...uploadedImages];
 
-    if (uploadedImage) {
-      product.image = uploadedImage;
+    if (nextImages.length > 10) {
+      throw new Error("一個商品最多只能上傳 10 張圖片。");
     }
 
+    const images = nextImages.slice(0, 10);
+    const product = buildProductFromForm(formData, existing, images);
     await saveProduct(product);
   } catch (error) {
     redirectWithError("products", error);

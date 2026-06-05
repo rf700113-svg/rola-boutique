@@ -133,6 +133,8 @@ function AdminErrorPanel({ message }: { message: string }) {
 }
 
 function ProductForm({ product, disabled = false }: { product?: Product; disabled?: boolean }) {
+  const productImages = product?.images?.length ? product.images : product?.image ? [product.image] : [];
+
   return (
     <section className="mt-8 bg-ivory p-5 sm:p-7">
       <h2 className="font-serif text-3xl text-charcoal">{product ? "編輯商品" : "新增商品"}</h2>
@@ -180,7 +182,39 @@ function ProductForm({ product, disabled = false }: { product?: Product; disable
           LINE 詢問文字
           <textarea name="lineInquiryText" rows={2} defaultValue={product?.lineInquiryText ?? ""} disabled={disabled} className={inputClass} />
         </label>
-        <ProductImageInput disabled={disabled} currentImage={product?.image} />
+        {productImages.length > 0 ? (
+          <div className="grid gap-3">
+            <p className="text-sm text-charcoal/70">目前商品圖片</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {productImages.map((image, index) => (
+                <div key={`${image}-${index}`} className="border border-stone bg-white p-3">
+                  <img src={image} alt="" className="h-40 w-full bg-cream object-cover object-top" />
+                  <input type="hidden" name="existingImages" value={image} />
+                  <div className="mt-3 grid gap-2">
+                    <label className="grid gap-1 text-xs text-charcoal/60">
+                      排序
+                      <input
+                        name={`imageSort-${index}`}
+                        type="number"
+                        defaultValue={index + 1}
+                        min="1"
+                        max="10"
+                        disabled={disabled}
+                        className="border border-stone bg-white px-2 py-2 text-charcoal"
+                      />
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-red-700">
+                      <input name={`removeImage-${index}`} type="checkbox" disabled={disabled} />
+                      刪除此圖片
+                    </label>
+                    {index === 0 ? <span className="text-xs text-champagne">目前封面</span> : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        <ProductImageInput disabled={disabled} currentImage={productImages[0]} currentCount={productImages.length} />
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm">
             <input name="isActive" type="checkbox" defaultChecked={product?.isActive ?? true} disabled={disabled} />

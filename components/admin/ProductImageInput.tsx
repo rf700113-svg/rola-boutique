@@ -6,46 +6,56 @@ const maxImageSize = 5 * 1024 * 1024;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
-export function ProductImageInput({ disabled = false, currentImage }: { disabled?: boolean; currentImage?: string }) {
+export function ProductImageInput({ disabled = false, currentImage, currentCount = 0 }: { disabled?: boolean; currentImage?: string; currentCount?: number }) {
   const [error, setError] = useState("");
 
   return (
     <div className="grid gap-2 text-sm text-charcoal/70">
       <span>商品圖片</span>
       <input
-        name="imageFile"
+        name="imageFiles"
         type="file"
+        multiple
         accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
         disabled={disabled}
         onChange={(event) => {
           const input = event.currentTarget;
-          const file = input.files?.[0];
+          const files = Array.from(input.files ?? []);
           setError("");
 
-          if (!file) {
+          if (files.length === 0) {
             return;
           }
 
-          const lowerName = file.name.toLowerCase();
-          const extensionAllowed = allowedExtensions.some((extension) => lowerName.endsWith(extension));
-
-          if (!extensionAllowed || (file.type && !allowedTypes.has(file.type))) {
-            setError("商品圖片只能上傳 jpg、jpeg、png、webp。");
+          if (currentCount + files.length > 10) {
+            setError("一個商品最多只能上傳 10 張圖片。");
             input.value = "";
             return;
           }
 
-          if (file.size > maxImageSize) {
-            setError("圖片檔案太大，請壓縮到 5MB 以下再上傳。");
-            input.value = "";
+          for (const file of files) {
+            const lowerName = file.name.toLowerCase();
+            const extensionAllowed = allowedExtensions.some((extension) => lowerName.endsWith(extension));
+
+            if (!extensionAllowed || (file.type && !allowedTypes.has(file.type))) {
+              setError("商品圖片只能上傳 jpg、jpeg、png、webp。");
+              input.value = "";
+              return;
+            }
+
+            if (file.size > maxImageSize) {
+              setError("圖片檔案太大，請壓縮到 5MB 以下再上傳。");
+              input.value = "";
+              return;
+            }
           }
         }}
         className="border border-stone bg-white px-3 py-3 text-charcoal file:mr-4 file:border-0 file:bg-charcoal file:px-4 file:py-2 file:text-white disabled:opacity-50"
       />
       {currentImage ? (
-        <span className="break-all text-xs text-charcoal/50">目前圖片：{currentImage}</span>
+        <span className="break-all text-xs text-charcoal/50">目前封面：{currentImage}，目前共 {currentCount} 張</span>
       ) : (
-        <span className="text-xs text-charcoal/50">可上傳 jpg、jpeg、png、webp，5MB 以內。</span>
+        <span className="text-xs text-charcoal/50">可多選上傳 jpg、jpeg、png、webp，單張 5MB 以內，最多 10 張。</span>
       )}
       {error ? <span className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</span> : null}
     </div>

@@ -9,6 +9,7 @@ create table if not exists products (
   colors text,
   description text,
   image_url text,
+  images jsonb default '[]',
   sort_order integer default 999,
   is_active boolean default true,
   is_new boolean default true,

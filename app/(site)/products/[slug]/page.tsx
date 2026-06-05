@@ -1,8 +1,8 @@
-﻿import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, MessageCircle } from "lucide-react";
 import { ContactButtons } from "@/components/ContactButtons";
+import { ProductGallery } from "@/components/ProductGallery";
 import { ProductCard } from "@/components/ProductCard";
 import { formatPrice, getAllProducts, getCategoryLabel, getProductBySlug } from "@/lib/products";
 import { getSocialSettings } from "@/lib/settings";
@@ -39,9 +39,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const social = await getSocialSettings();
-  const imageSrc = product.image && !product.image.startsWith("/placeholders/")
-    ? product.image
-    : fallbackProductImage;
+  const galleryImages = product.images?.length
+    ? product.images
+    : product.image && !product.image.startsWith("/placeholders/")
+      ? [product.image]
+      : [fallbackProductImage];
   const products = await getAllProducts();
   const related = products
     .filter((item) => item.category === product.category && item.slug !== product.slug)
@@ -57,16 +59,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </Link>
 
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-            <div className="relative aspect-[3/4] max-h-[68vh] overflow-hidden bg-ivory sm:max-h-none">
-              <Image
-                src={imageSrc}
-                alt={product.name}
-                fill
-                className="object-contain object-top lg:object-cover lg:object-top"
-                sizes="(min-width: 1024px) 52vw, 100vw"
-                priority
-              />
-            </div>
+            <ProductGallery images={galleryImages} productName={product.name} />
 
             <div className="lg:pt-8">
               {product.badge ? (
@@ -134,4 +127,3 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </div>
   );
 }
-

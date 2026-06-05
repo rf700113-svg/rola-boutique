@@ -22,6 +22,7 @@ export type Product = {
   colors: string[];
   description: string;
   image: string;
+  images: string[];
   sortOrder?: number;
   isActive: boolean;
   isNew: boolean;
@@ -43,6 +44,7 @@ type SupabaseProductRow = {
   colors: string | null;
   description: string | null;
   image_url: string | null;
+  images: unknown;
   sort_order: number | null;
   is_active: boolean | null;
   is_new: boolean | null;
@@ -104,11 +106,24 @@ function normalizeTextArray(value: string[] | string | null | undefined) {
     .filter(Boolean);
 }
 
+function normalizeImageArray(value: unknown, fallbackImage?: string | null) {
+  const images = Array.isArray(value)
+    ? value.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)
+    : [];
+
+  if (images.length > 0) {
+    return images;
+  }
+
+  return fallbackImage ? [fallbackImage] : [];
+}
+
 function hydrateProduct(product: Partial<Product>): Product {
   const id = String(product.id ?? crypto.randomUUID());
   const name = product.name?.trim() || "未命名商品";
   const isNew = Boolean(product.isNew);
   const isBestSeller = Boolean(product.isBestSeller);
+  const images = normalizeImageArray(product.images, product.image);
 
   return {
     id,
@@ -119,7 +134,8 @@ function hydrateProduct(product: Partial<Product>): Product {
     sizes: normalizeTextArray(product.sizes),
     colors: normalizeTextArray(product.colors),
     description: product.description ?? "",
-    image: product.image || "/uploads/products/rola-look-01.jpg",
+    image: images[0] || product.image || "/uploads/products/rola-look-01.jpg",
+    images,
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive ?? true,
     isNew,
@@ -143,6 +159,7 @@ function rowToProduct(row: SupabaseProductRow): Product {
     colors: normalizeTextArray(row.colors),
     description: row.description ?? "",
     image: row.image_url ?? "",
+    images: normalizeImageArray(row.images, row.image_url),
     sortOrder: typeof row.sort_order === "number" ? row.sort_order : undefined,
     isActive: row.is_active ?? true,
     isNew: row.is_new ?? false,
@@ -162,7 +179,8 @@ function productToRow(product: Product) {
     sizes: product.sizes.join(", "),
     colors: product.colors.join(", "),
     description: product.description,
-    image_url: product.image,
+    image_url: product.images[0] || product.image,
+    images: product.images,
     sort_order: typeof product.sortOrder === "number" ? product.sortOrder : null,
     is_active: product.isActive,
     is_new: product.isNew,
@@ -273,6 +291,7 @@ export async function saveProducts(products: Product[]) {
     colors: product.colors,
     description: product.description,
     image: product.image,
+    images: product.images,
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive,
     isNew: product.isNew,
@@ -331,6 +350,19 @@ export async function saveProductImage(file: FormDataEntryValue | null) {
   await fs.writeFile(destination, buffer);
 
   return `/uploads/products/${safeName}`;
+}
+
+export async function saveProductImages(files: FormDataEntryValue[]) {
+  const uploadedImages: string[] = [];
+
+  for (const file of files) {
+    const uploadedImage = await saveProductImage(file);
+    if (uploadedImage) {
+      uploadedImages.push(uploadedImage);
+    }
+  }
+
+  return uploadedImages;
 }
 
 export async function getProductBySlug(slug: string, { includeHidden = false } = {}) {

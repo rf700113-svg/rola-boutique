@@ -14,8 +14,10 @@ const fashionFallbacks: Record<string, string> = {
 };
 
 function getDisplayImage(product: Product) {
-  return product.image && !product.image.startsWith("/placeholders/")
-    ? product.image
+  const coverImage = product.images?.[0] || product.image;
+
+  return coverImage && !coverImage.startsWith("/placeholders/")
+    ? coverImage
     : fashionFallbacks[product.category];
 }
 
