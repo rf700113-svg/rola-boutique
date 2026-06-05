@@ -22,12 +22,27 @@ export function getSupabaseConfig(): SupabaseConfig {
   };
 }
 
+export function getMissingSupabaseEnvVars(): string[] {
+  const envVars: Array<[string, string | undefined]> = [
+    ["NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL],
+    ["NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY],
+    ["SUPABASE_SERVICE_ROLE_KEY", process.env.SUPABASE_SERVICE_ROLE_KEY]
+  ];
+
+  return envVars.filter(([, value]) => !value).map(([key]) => key);
+}
+
 export function getSupabaseStatus() {
   const config = getSupabaseConfig();
+  const missingEnvVars = getMissingSupabaseEnvVars();
   return {
     configured: config.configured,
     requiresSupabase: process.env.NODE_ENV === "production",
-    message: !config.configured && process.env.NODE_ENV === "production" ? supabaseMissingMessage : ""
+    missingEnvVars,
+    message:
+      !config.configured && process.env.NODE_ENV === "production"
+        ? `${supabaseMissingMessage} 缺少環境變數：${missingEnvVars.join("、")}`
+        : ""
   };
 }
 

@@ -32,8 +32,7 @@ const labelClass = "grid gap-2 text-sm text-charcoal/70";
 const adminTabs = [
   { label: "商品管理", href: "/admin/products" },
   { label: "首頁設定", href: "/admin/settings#home" },
-  { label: "社群連結", href: "/admin/settings#social" },
-  { label: "品牌設定", href: "/admin/settings#brand" },
+  { label: "社群設定", href: "/admin/settings#social" },
   { label: "SEO 設定", href: "/admin/settings#seo" }
 ];
 
@@ -81,11 +80,13 @@ function Status({
 function StoreNotice({
   configured,
   requiresSupabase,
-  message
+  message,
+  missingEnvVars = []
 }: {
   configured: boolean;
   requiresSupabase: boolean;
   message: string;
+  missingEnvVars?: string[];
 }) {
   if (configured) {
     return (
@@ -98,9 +99,8 @@ function StoreNotice({
   if (requiresSupabase) {
     return (
       <div className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm leading-7 text-red-700">
-        {message}
-        <br />
-        請在 Vercel 設定 NEXT_PUBLIC_SUPABASE_URL、NEXT_PUBLIC_SUPABASE_ANON_KEY、SUPABASE_SERVICE_ROLE_KEY。
+        {message || "尚未設定 Supabase，請先設定資料庫連線。"}
+        {missingEnvVars.length > 0 ? <div className="mt-2">缺少環境變數：{missingEnvVars.join("、")}</div> : null}
       </div>
     );
   }
@@ -108,7 +108,27 @@ function StoreNotice({
   return (
     <div className="mt-6 border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-7 text-amber-800">
       目前未設定 Supabase，本機開發暫時使用 JSON fallback。部署到 Vercel 前請設定 Supabase。
+      {missingEnvVars.length > 0 ? <div className="mt-2">尚未設定：{missingEnvVars.join("、")}</div> : null}
     </div>
+  );
+}
+
+function AdminErrorPanel({ message }: { message: string }) {
+  return (
+    <section className="mt-6 border border-red-200 bg-red-50 p-5 text-red-800">
+      <h2 className="text-lg font-medium">商品管理載入失敗</h2>
+      <p className="mt-3 whitespace-pre-wrap text-sm leading-7">{message}</p>
+      <div className="mt-4 text-sm leading-7 text-red-700">
+        <p>請檢查以下項目：</p>
+        <ul className="mt-2 list-disc pl-5">
+          <li>Supabase 連線是否正確。</li>
+          <li>products table 是否已建立。</li>
+          <li>products 欄位是否與 supabase/schema.sql 一致。</li>
+          <li>SUPABASE_SERVICE_ROLE_KEY 是否有權限讀寫資料。</li>
+          <li>Storage bucket 是否已建立 product-images。</li>
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -266,15 +286,9 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
                 </td>
                 <td className="px-4 py-4 text-charcoal/70">{formatPrice(product.price)}</td>
                 <td className="px-4 py-4 text-charcoal/70">{getCategoryLabel(product.category)}</td>
-                <td className="px-4 py-4">
-                  <StatusBadge active={product.isActive} trueText="上架" falseText="下架" />
-                </td>
-                <td className="px-4 py-4">
-                  <StatusBadge active={product.isNew} trueText="新品" falseText="一般" />
-                </td>
-                <td className="px-4 py-4">
-                  <StatusBadge active={Boolean(product.showOnHome)} trueText="顯示" falseText="隱藏" />
-                </td>
+                <td className="px-4 py-4"><StatusBadge active={product.isActive} trueText="上架" falseText="下架" /></td>
+                <td className="px-4 py-4"><StatusBadge active={product.isNew} trueText="新品" falseText="一般" /></td>
+                <td className="px-4 py-4"><StatusBadge active={Boolean(product.showOnHome)} trueText="顯示" falseText="隱藏" /></td>
                 <td className="px-4 py-4 text-charcoal/70">{product.sortOrder ?? "未設定"}</td>
                 <td className="px-4 py-4">
                   <div className="grid min-w-36 gap-2">
@@ -328,16 +342,31 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
 export default async function AdminProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const storeStatus = getProductStoreStatus();
-  const products = await getAllProducts({ includeHidden: true });
+  let products: Product[] = [];
+  let loadError = "";
+
+  try {
+    products = await getAllProducts({ includeHidden: true });
+  } catch (error) {
+    console.error("Admin products page error:", error);
+    loadError = error instanceof Error ? error.message : String(error);
+  }
+
   const editingProduct = params?.edit ? products.find((product) => product.id === params.edit) : undefined;
-  const disableProductActions = storeStatus.requiresSupabase && !storeStatus.configured;
+  const disableProductActions = Boolean(loadError) || (storeStatus.requiresSupabase && !storeStatus.configured);
 
   return (
     <>
       <h1 className="font-serif text-4xl text-charcoal sm:text-5xl">商品管理</h1>
       <AdminTabs />
-      <StoreNotice configured={storeStatus.configured} requiresSupabase={storeStatus.requiresSupabase} message={storeStatus.message} />
+      <StoreNotice
+        configured={storeStatus.configured}
+        requiresSupabase={storeStatus.requiresSupabase}
+        message={storeStatus.message}
+        missingEnvVars={storeStatus.missingEnvVars}
+      />
       <Status saved={params?.saved} updated={params?.updated} deleted={params?.deleted} errorMessage={params?.errorMessage} />
+      {loadError ? <AdminErrorPanel message={loadError} /> : null}
       <ProductForm product={editingProduct} disabled={disableProductActions} />
 
       <section className="mt-10">
