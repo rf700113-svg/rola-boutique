@@ -55,6 +55,7 @@ type SupabaseProductRow = {
 };
 
 const productsFilePath = path.join(process.cwd(), "data", "products.json");
+const fallbackProductImage = "/uploads/products/rola-look-01.jpg";
 
 export function getProductStoreStatus() {
   return getSupabaseStatus();
@@ -62,7 +63,6 @@ export function getProductStoreStatus() {
 
 function assertWritableStore() {
   const status = getProductStoreStatus();
-
   if (status.requiresSupabase && !status.configured) {
     throw new Error(supabaseMissingMessage);
   }
@@ -86,7 +86,9 @@ function normalizeCategory(category: string | null | undefined): ProductCategory
     配件: "Accessories",
     特價: "Sale"
   };
+
   if (category && zhMap[category]) return zhMap[category];
+
   const allowed = categoryOptions.map((item) => item.value);
   return allowed.includes(category as ProductCategory) ? (category as ProductCategory) : "Dresses";
 }
@@ -96,9 +98,7 @@ function normalizeTextArray(value: string[] | string | null | undefined) {
     return value.map((item) => String(item).trim()).filter(Boolean);
   }
 
-  if (!value) {
-    return [];
-  }
+  if (!value) return [];
 
   return value
     .split(/[,，\n]/)
@@ -106,16 +106,17 @@ function normalizeTextArray(value: string[] | string | null | undefined) {
     .filter(Boolean);
 }
 
-function normalizeImageArray(value: unknown, fallbackImage?: string | null) {
-  const images = Array.isArray(value)
-    ? value.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)
+export function getProductImages(product: { images?: unknown; image?: string | null; image_url?: string | null }) {
+  const imageUrl = product.image ?? product.image_url ?? "";
+  const images = Array.isArray(product.images)
+    ? product.images.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)
     : [];
 
   if (images.length > 0) {
     return images;
   }
 
-  return fallbackImage ? [fallbackImage] : [];
+  return imageUrl ? [imageUrl] : [];
 }
 
 function hydrateProduct(product: Partial<Product>): Product {
@@ -123,7 +124,7 @@ function hydrateProduct(product: Partial<Product>): Product {
   const name = product.name?.trim() || "未命名商品";
   const isNew = Boolean(product.isNew);
   const isBestSeller = Boolean(product.isBestSeller);
-  const images = normalizeImageArray(product.images, product.image);
+  const images = getProductImages(product);
 
   return {
     id,
@@ -134,7 +135,7 @@ function hydrateProduct(product: Partial<Product>): Product {
     sizes: normalizeTextArray(product.sizes),
     colors: normalizeTextArray(product.colors),
     description: product.description ?? "",
-    image: images[0] || product.image || "/uploads/products/rola-look-01.jpg",
+    image: images[0] || product.image || fallbackProductImage,
     images,
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive ?? true,
@@ -150,6 +151,8 @@ function hydrateProduct(product: Partial<Product>): Product {
 }
 
 function rowToProduct(row: SupabaseProductRow): Product {
+  const images = getProductImages({ images: row.images, image_url: row.image_url });
+
   return hydrateProduct({
     id: row.id,
     name: row.name ?? "",
@@ -158,8 +161,8 @@ function rowToProduct(row: SupabaseProductRow): Product {
     sizes: normalizeTextArray(row.sizes),
     colors: normalizeTextArray(row.colors),
     description: row.description ?? "",
-    image: row.image_url ?? "",
-    images: normalizeImageArray(row.images, row.image_url),
+    image: images[0] || row.image_url || "",
+    images,
     sortOrder: typeof row.sort_order === "number" ? row.sort_order : undefined,
     isActive: row.is_active ?? true,
     isNew: row.is_new ?? false,
@@ -171,6 +174,8 @@ function rowToProduct(row: SupabaseProductRow): Product {
 }
 
 function productToRow(product: Product) {
+  const images = getProductImages(product);
+
   return {
     id: product.id,
     name: product.name,
@@ -179,8 +184,8 @@ function productToRow(product: Product) {
     sizes: product.sizes.join(", "),
     colors: product.colors.join(", "),
     description: product.description,
-    image_url: product.images[0] || product.image,
-    images: product.images,
+    image_url: images[0] ?? null,
+    images,
     sort_order: typeof product.sortOrder === "number" ? product.sortOrder : null,
     is_active: product.isActive,
     is_new: product.isNew,
@@ -198,7 +203,6 @@ function sortProducts(products: Product[]) {
     if (aHasSort && bHasSort && a.sortOrder !== b.sortOrder) {
       return (a.sortOrder as number) - (b.sortOrder as number);
     }
-
     if (aHasSort && !bHasSort) return -1;
     if (!aHasSort && bHasSort) return 1;
 
@@ -267,7 +271,6 @@ export async function saveProduct(product: Product) {
       const detail = await response.text();
       throw new Error(normalizeSupabaseError(response.status, detail));
     }
-
     return;
   }
 
@@ -290,8 +293,8 @@ export async function saveProducts(products: Product[]) {
     sizes: product.sizes,
     colors: product.colors,
     description: product.description,
-    image: product.image,
-    images: product.images,
+    image: getProductImages(product)[0] || product.image,
+    images: getProductImages(product),
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive,
     isNew: product.isNew,
@@ -319,7 +322,6 @@ export async function deleteProductById(id: string) {
       const detail = await response.text();
       throw new Error(normalizeSupabaseError(response.status, detail));
     }
-
     return;
   }
 
@@ -334,7 +336,6 @@ export async function saveProductImage(file: FormDataEntryValue | null) {
   }
 
   const extension = validateImageFile(file);
-
   const status = getProductStoreStatus();
   const safeName = `${Date.now()}-${crypto.randomUUID()}${extension}`;
 
@@ -409,7 +410,6 @@ export function toArrayFromInput(value: FormDataEntryValue | null) {
   if (!value || typeof value !== "string") {
     return [];
   }
-
   return normalizeTextArray(value);
 }
 

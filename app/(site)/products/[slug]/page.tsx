@@ -4,7 +4,7 @@ import { ChevronLeft, MessageCircle } from "lucide-react";
 import { ContactButtons } from "@/components/ContactButtons";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductCard } from "@/components/ProductCard";
-import { formatPrice, getAllProducts, getCategoryLabel, getProductBySlug } from "@/lib/products";
+import { formatPrice, getAllProducts, getCategoryLabel, getProductBySlug, getProductImages } from "@/lib/products";
 import { getSocialSettings } from "@/lib/settings";
 
 type ProductPageProps = {
@@ -39,11 +39,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const social = await getSocialSettings();
-  const galleryImages = product.images?.length
-    ? product.images
-    : product.image && !product.image.startsWith("/placeholders/")
-      ? [product.image]
-      : [fallbackProductImage];
+  const galleryImages = getProductImages(product).filter((image) => !image.startsWith("/placeholders/"));
+  const safeGalleryImages = galleryImages.length > 0 ? galleryImages : [fallbackProductImage];
   const products = await getAllProducts();
   const related = products
     .filter((item) => item.category === product.category && item.slug !== product.slug)
@@ -59,7 +56,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </Link>
 
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-            <ProductGallery images={galleryImages} productName={product.name} />
+            <ProductGallery images={safeGalleryImages} productName={product.name} />
 
             <div className="lg:pt-8">
               {product.badge ? (

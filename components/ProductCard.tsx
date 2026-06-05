@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { lineUrl as fallbackLineUrl } from "@/lib/contact";
-import { getCategoryLabel, type Product, formatPrice } from "@/lib/products";
+import { getCategoryLabel, type Product, formatPrice, getProductImages } from "@/lib/products";
 
 const fashionFallbacks: Record<string, string> = {
   Dresses: "/uploads/products/rola-look-09.jpg",
@@ -14,7 +14,7 @@ const fashionFallbacks: Record<string, string> = {
 };
 
 function getDisplayImage(product: Product) {
-  const coverImage = product.images?.[0] || product.image;
+  const coverImage = getProductImages(product)[0] || product.image;
 
   return coverImage && !coverImage.startsWith("/placeholders/")
     ? coverImage

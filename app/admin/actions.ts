@@ -9,6 +9,7 @@ import {
   createSlug,
   deleteProductById,
   getAllProducts,
+  getProductImages,
   normalizePrice,
   saveProduct,
   saveProductImages,
@@ -138,7 +139,7 @@ export async function saveProductAction(formData: FormData) {
     const idValue = getString(formData, "id");
     const existing = idValue ? products.find((product) => product.id === idValue) : undefined;
     const existingImages = getExistingImagesFromForm(formData);
-    const fallbackExistingImages = existing?.images?.length ? existing.images : existing?.image ? [existing.image] : [];
+    const fallbackExistingImages = existing ? getProductImages(existing) : [];
     const baseImages = existingImages.length > 0 || formData.has("existingImages") ? existingImages : fallbackExistingImages;
     const uploadedImages = await saveProductImages(formData.getAll("imageFiles"));
     const nextImages = [...baseImages, ...uploadedImages];

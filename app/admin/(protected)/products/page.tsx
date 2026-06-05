@@ -7,6 +7,7 @@ import {
   formatPrice,
   getAllProducts,
   getCategoryLabel,
+  getProductImages,
   getProductStoreStatus,
   type Product
 } from "@/lib/products";
@@ -133,7 +134,7 @@ function AdminErrorPanel({ message }: { message: string }) {
 }
 
 function ProductForm({ product, disabled = false }: { product?: Product; disabled?: boolean }) {
-  const productImages = product?.images?.length ? product.images : product?.image ? [product.image] : [];
+  const productImages = product ? getProductImages(product) : [];
 
   return (
     <section className="mt-8 bg-ivory p-5 sm:p-7">
