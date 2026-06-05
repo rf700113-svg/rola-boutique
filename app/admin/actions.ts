@@ -30,6 +30,10 @@ function getString(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function getCheckbox(formData: FormData, key: string) {
+  return formData.get(key) === "on";
+}
+
 function getNumberOrUndefined(formData: FormData, key: string) {
   const value = getString(formData, key);
   if (value === "") return undefined;
@@ -44,10 +48,6 @@ function getPrice(formData: FormData) {
   return Number.isFinite(price) ? price : null;
 }
 
-function getCheckbox(formData: FormData, key: string) {
-  return formData.get(key) === "on";
-}
-
 function redirectWithError(tab: AdminTab, error: unknown) {
   const message = error instanceof Error ? error.message : "儲存時發生錯誤，請稍後再試。";
   const path = tab === "products" ? "/admin/products" : "/admin/settings";
@@ -56,7 +56,7 @@ function redirectWithError(tab: AdminTab, error: unknown) {
 
 async function ensureAdmin() {
   if (!(await isAdminAuthenticated())) {
-    redirect("/admin");
+    redirect("/admin/login");
   }
 }
 
@@ -65,6 +65,8 @@ function revalidateStorefront() {
   revalidatePath("/products");
   revalidatePath("/products/[slug]", "page");
   revalidatePath("/admin");
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/settings");
 }
 
 function buildProductFromForm(formData: FormData, existing?: Product): Product {
@@ -100,7 +102,7 @@ export async function loginAction(formData: FormData) {
   const password = getString(formData, "password");
 
   if (!validateAdminLogin(username, password)) {
-    redirect("/admin?error=1");
+    redirect("/admin/login?error=1");
   }
 
   await setAdminSession();
@@ -109,7 +111,7 @@ export async function loginAction(formData: FormData) {
 
 export async function logoutAction() {
   await clearAdminSession();
-  redirect("/admin");
+  redirect("/admin/login");
 }
 
 export async function saveProductAction(formData: FormData) {

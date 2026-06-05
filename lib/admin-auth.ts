@@ -6,7 +6,7 @@ const cookieName = "rola_admin_session";
 function getCredentials() {
   return {
     username: process.env.ADMIN_USERNAME ?? "rola",
-    password: process.env.ADMIN_PASSWORD ?? ""
+    password: process.env.ADMIN_PASSWORD ?? "9060630"
   };
 }
 

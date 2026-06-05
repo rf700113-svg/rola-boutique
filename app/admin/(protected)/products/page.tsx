@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { loginAction, saveProductAction } from "@/app/admin/actions";
+import { saveProductAction } from "@/app/admin/actions";
 import { DeleteProductForm } from "@/components/admin/DeleteProductForm";
-import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { categoryOptions, formatPrice, getAllProducts, getCategoryLabel, type Product } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
@@ -20,21 +19,6 @@ const adminTabs = [
   { label: "品牌設定", href: "/admin/settings#brand" },
   { label: "SEO設定", href: "/admin/settings#seo" }
 ];
-
-function LoginForm({ hasError }: { hasError: boolean }) {
-  return (
-    <div className="mx-auto max-w-md bg-ivory p-8">
-      <p className="text-xs uppercase tracking-[0.35em] text-champagne">ROLA Admin</p>
-      <h1 className="mt-4 font-serif text-4xl text-charcoal">後台登入</h1>
-      {hasError ? <p className="mt-5 border border-red-200 bg-red-50 p-3 text-sm text-red-700">帳號或密碼錯誤。</p> : null}
-      <form action={loginAction} className="mt-8 grid gap-4">
-        <label className={labelClass}>帳號<input name="username" required className={inputClass} /></label>
-        <label className={labelClass}>密碼<input name="password" type="password" required className={inputClass} /></label>
-        <button className="min-h-12 bg-charcoal px-5 py-3 text-sm tracking-[0.16em] text-white">登入後台</button>
-      </form>
-    </div>
-  );
-}
 
 function AdminTabs() {
   return (
@@ -111,9 +95,6 @@ function ProductForm({ product }: { product?: Product }) {
 
 export default async function AdminProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const authenticated = await isAdminAuthenticated();
-  if (!authenticated) return <LoginForm hasError={params?.error === "1"} />;
-
   const products = await getAllProducts({ includeHidden: true });
   const editingProduct = params?.edit ? products.find((product) => product.id === Number(params.edit)) : undefined;
 

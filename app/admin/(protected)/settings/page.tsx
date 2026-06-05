@@ -1,12 +1,10 @@
 import Link from "next/link";
 import {
-  loginAction,
   saveBrandSettingsAction,
   saveHomeSettingsAction,
   saveSeoSettingsAction,
   saveSocialSettingsAction
 } from "@/app/admin/actions";
-import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getBrandSettings, getHomeSettings, getSeoSettings, getSocialSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
@@ -26,21 +24,6 @@ const adminTabs = [
   { label: "品牌設定", href: "#brand" },
   { label: "SEO設定", href: "#seo" }
 ];
-
-function LoginForm({ hasError }: { hasError: boolean }) {
-  return (
-    <div className="mx-auto max-w-md bg-ivory p-8">
-      <p className="text-xs uppercase tracking-[0.35em] text-champagne">ROLA Admin</p>
-      <h1 className="mt-4 font-serif text-4xl text-charcoal">後台登入</h1>
-      {hasError ? <p className="mt-5 border border-red-200 bg-red-50 p-3 text-sm text-red-700">帳號或密碼錯誤。</p> : null}
-      <form action={loginAction} className="mt-8 grid gap-4">
-        <label className={labelClass}>帳號<input name="username" required className={inputClass} /></label>
-        <label className={labelClass}>密碼<input name="password" type="password" required className={inputClass} /></label>
-        <button className="min-h-12 bg-charcoal px-5 py-3 text-sm tracking-[0.16em] text-white">登入後台</button>
-      </form>
-    </div>
-  );
-}
 
 function AdminTabs() {
   return (
@@ -77,9 +60,6 @@ function SaveButton() {
 
 export default async function AdminSettingsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const authenticated = await isAdminAuthenticated();
-  if (!authenticated) return <LoginForm hasError={params?.error === "1"} />;
-
   const [home, social, brand, seo] = await Promise.all([
     getHomeSettings(),
     getSocialSettings(),
