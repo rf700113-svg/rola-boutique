@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "ROLA Admin",
-  description: "ROLA Boutique 網站管理後台",
+  description: "ROLA Boutique 後台管理",
   openGraph: {
     title: "ROLA Admin",
-    description: "ROLA Boutique 網站管理後台",
+    description: "ROLA Boutique 後台管理",
     images: []
   }
 };

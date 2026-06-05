@@ -7,8 +7,11 @@ import {
   type Product,
   type ProductCategory,
   createSlug,
+  deleteProductById,
   getAllProducts,
-  saveProducts,
+  normalizePrice,
+  saveProduct,
+  saveProductImage,
   toArrayFromInput
 } from "@/lib/products";
 import {
@@ -24,6 +27,7 @@ import {
 import { saveUploadedImage } from "@/lib/upload";
 
 type AdminTab = "products" | "home" | "social" | "brand" | "seo";
+type ToggleField = "isActive" | "isNew" | "showOnHome";
 
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -41,15 +45,8 @@ function getNumberOrUndefined(formData: FormData, key: string) {
   return Number.isFinite(number) ? number : undefined;
 }
 
-function getPrice(formData: FormData) {
-  const value = getString(formData, "price");
-  if (value === "") return null;
-  const price = Number(value);
-  return Number.isFinite(price) ? price : null;
-}
-
 function redirectWithError(tab: AdminTab, error: unknown) {
-  const message = error instanceof Error ? error.message : "儲存時發生錯誤，請稍後再試。";
+  const message = error instanceof Error ? error.message : "儲存失敗，請稍後再試。";
   const path = tab === "products" ? "/admin/products" : "/admin/settings";
   redirect(`${path}?errorMessage=${encodeURIComponent(message)}`);
 }
@@ -70,7 +67,7 @@ function revalidateStorefront() {
 }
 
 function buildProductFromForm(formData: FormData, existing?: Product): Product {
-  const id = existing?.id ?? Date.now();
+  const id = existing?.id ?? crypto.randomUUID();
   const name = getString(formData, "name");
   const sortOrder = getNumberOrUndefined(formData, "sortOrder");
 
@@ -82,7 +79,7 @@ function buildProductFromForm(formData: FormData, existing?: Product): Product {
     id,
     slug: existing?.slug || createSlug(name, id),
     name,
-    price: getPrice(formData),
+    price: normalizePrice(getString(formData, "price")),
     category: getString(formData, "category") as ProductCategory,
     sizes: toArrayFromInput(formData.get("sizes")),
     colors: toArrayFromInput(formData.get("colors")),
@@ -92,7 +89,7 @@ function buildProductFromForm(formData: FormData, existing?: Product): Product {
     isActive: getCheckbox(formData, "isActive"),
     isNew: getCheckbox(formData, "isNew"),
     showOnHome: getCheckbox(formData, "showOnHome"),
-    isBestSeller: getCheckbox(formData, "isBestSeller"),
+    isBestSeller: existing?.isBestSeller ?? false,
     lineInquiryText: getString(formData, "lineInquiryText")
   };
 }
@@ -120,19 +117,15 @@ export async function saveProductAction(formData: FormData) {
   try {
     const products = await getAllProducts({ includeHidden: true });
     const idValue = getString(formData, "id");
-    const existing = idValue ? products.find((product) => product.id === Number(idValue)) : undefined;
+    const existing = idValue ? products.find((product) => product.id === idValue) : undefined;
     const product = buildProductFromForm(formData, existing);
-    const uploadedImage = await saveUploadedImage(formData.get("imageFile"), "products");
+    const uploadedImage = await saveProductImage(formData.get("imageFile"));
 
     if (uploadedImage) {
       product.image = uploadedImage;
     }
 
-    if (existing) {
-      await saveProducts(products.map((item) => (item.id === product.id ? product : item)));
-    } else {
-      await saveProducts([product, ...products]);
-    }
+    await saveProduct(product);
   } catch (error) {
     redirectWithError("products", error);
   }
@@ -141,13 +134,44 @@ export async function saveProductAction(formData: FormData) {
   redirect("/admin/products?saved=1");
 }
 
+export async function toggleProductFlagAction(formData: FormData) {
+  await ensureAdmin();
+
+  try {
+    const id = getString(formData, "id");
+    const field = getString(formData, "field") as ToggleField;
+    const value = getString(formData, "value") === "true";
+    const allowedFields: ToggleField[] = ["isActive", "isNew", "showOnHome"];
+
+    if (!id || !allowedFields.includes(field)) {
+      throw new Error("商品狀態更新失敗。");
+    }
+
+    const products = await getAllProducts({ includeHidden: true });
+    const product = products.find((item) => item.id === id);
+
+    if (!product) {
+      throw new Error("找不到商品。");
+    }
+
+    await saveProduct({
+      ...product,
+      [field]: value
+    });
+  } catch (error) {
+    redirectWithError("products", error);
+  }
+
+  revalidateStorefront();
+  redirect("/admin/products?updated=1");
+}
+
 export async function deleteProductAction(formData: FormData) {
   await ensureAdmin();
 
   try {
-    const id = Number(getString(formData, "id"));
-    const products = await getAllProducts({ includeHidden: true });
-    await saveProducts(products.filter((product) => product.id !== id));
+    const id = getString(formData, "id");
+    await deleteProductById(id);
   } catch (error) {
     redirectWithError("products", error);
   }

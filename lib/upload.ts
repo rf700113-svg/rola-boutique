@@ -18,7 +18,7 @@ export async function saveUploadedImage(
   const extensionAllowed = rasterExtensions.has(extension) || (options.allowSvg && svgExtensions.has(extension));
 
   if (!extensionAllowed) {
-    throw new Error(options.allowSvg ? "圖片格式僅支援 jpg、jpeg、png、webp、svg。" : "圖片格式僅支援 jpg、jpeg、png、webp。");
+    throw new Error(options.allowSvg ? "圖片只能上傳 jpg、jpeg、png、webp、svg。" : "圖片只能上傳 jpg、jpeg、png、webp。");
   }
 
   if (file.size > maxImageSize) {

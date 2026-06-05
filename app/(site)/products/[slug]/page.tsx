@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
   const product = await getProductBySlug(slug);
 
   return {
-    title: product ? `${product.name} | ROLA Boutique` : "???芣??| ROLA Boutique"
+    title: product ? `${product.name} | ROLA Boutique` : "商品不存在 | ROLA Boutique"
   };
 }
 
@@ -121,7 +121,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           {related.length > 0 ? (
             <section className="mt-20 border-t border-stone pt-12">
-              <h2 className="font-serif text-3xl text-charcoal">?賊???</h2>
+              <h2 className="font-serif text-3xl text-charcoal">相關商品</h2>
               <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
                 {related.map((item) => (
                   <ProductCard key={item.id} product={item} lineUrl={social.lineUrl} />

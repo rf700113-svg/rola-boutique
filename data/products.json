@@ -1,182 +1,216 @@
 [
   {
-    "id": 101,
+    "id": "0de7a847-f901-4f14-b185-4e7c83235814",
+    "slug": "product-0de7a847-f901-4f14-b185-4e7c83235814",
+    "name": "小娃",
+    "price": "99",
+    "category": "Dresses",
+    "sizes": [],
+    "colors": [],
+    "description": "",
+    "image": "/uploads/products/1780631646568-ea4308ff-160b-454b-8c04-604d430f93f7.jpeg",
+    "sortOrder": 0,
+    "isActive": true,
+    "isNew": true,
+    "showOnHome": true,
+    "isBestSeller": false,
+    "updatedAt": "2026-06-05T03:55:30.809Z"
+  },
+  {
+    "id": "101",
     "slug": "ivory-tailored-blazer-set",
-    "name": "象牙白俐落西裝外套",
-    "price": 4680,
+    "name": "米白俐落西裝外套",
+    "price": "4680",
     "category": "Outerwear",
-    "sizes": ["M", "L", "XL"],
-    "colors": ["象牙白", "奶茶色"],
-    "description": "俐落肩線與柔和色調，適合通勤、聚會與重要場合，展現成熟優雅的穿搭比例。",
+    "sizes": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "colors": [
+      "米白",
+      "燕麥灰"
+    ],
+    "description": "俐落肩線搭配柔和色調，適合通勤與正式場合，穿出成熟自信的精品感。",
     "image": "/uploads/products/rola-look-01.jpg",
     "sortOrder": 1,
     "isActive": true,
     "isNew": true,
-    "lineInquiryText": "我想詢問這件商品：象牙白俐落西裝外套"
+    "showOnHome": true,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：米白俐落西裝外套",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 102,
+    "id": "102",
     "slug": "champagne-satin-blouse",
-    "name": "香檳緞面垂墜上衣",
-    "price": 3280,
+    "name": "香檳緞面修身上衣",
+    "price": "3280",
     "category": "Tops",
-    "sizes": ["S", "M", "L", "XL"],
-    "colors": ["香檳米", "霧灰"],
-    "description": "細緻緞面光澤與修飾領口，單穿或搭配外套都能呈現柔和精品感。",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colors": [
+      "香檳",
+      "霧白"
+    ],
+    "description": "細緻光澤與修身剪裁，適合搭配寬褲或裙裝，呈現溫柔且俐落的氣質。",
     "image": "/uploads/products/rola-look-02.jpg",
     "sortOrder": 2,
     "isActive": true,
     "isNew": true,
-    "lineInquiryText": "我想詢問這件商品：香檳緞面垂墜上衣"
+    "showOnHome": true,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：香檳緞面修身上衣",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 103,
+    "id": "103",
     "slug": "cream-pleated-midi-dress",
-    "name": "奶油百褶中長洋裝",
-    "price": 3980,
+    "name": "奶油壓褶中長洋裝",
+    "price": "3980",
     "category": "Dresses",
-    "sizes": ["S", "M", "L"],
-    "colors": ["奶油白", "裸粉"],
-    "description": "中長裙襬與百褶線條拉長身形，適合午茶、宴會與正式聚會。",
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "colors": [
+      "奶油白",
+      "柔霧杏"
+    ],
+    "description": "自然垂墜的壓褶線條修飾身形，從午茶聚會到重要場合都能優雅出席。",
     "image": "/uploads/products/rola-look-03.jpg",
     "sortOrder": 3,
     "isActive": true,
     "isNew": true,
-    "lineInquiryText": "我想詢問這件商品：奶油百褶中長洋裝"
+    "showOnHome": true,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：奶油壓褶中長洋裝",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 104,
+    "id": "104",
     "slug": "milk-tea-long-coat",
     "name": "奶茶色長版風衣外套",
-    "price": 5280,
+    "price": "5280",
     "category": "Outerwear",
-    "sizes": ["M", "L", "XL"],
-    "colors": ["奶茶色", "深灰"],
-    "description": "乾淨長版線條與穩重色系，為日常穿搭增加成熟俐落感。",
+    "sizes": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "colors": [
+      "奶茶",
+      "深灰"
+    ],
+    "description": "乾淨輪廓與長版比例，輕鬆完成高級通勤穿搭，也適合旅行與聚會。",
     "image": "/uploads/products/rola-look-04.jpg",
     "sortOrder": 4,
     "isActive": true,
     "isNew": true,
-    "lineInquiryText": "我想詢問這件商品：奶茶色長版風衣外套"
+    "showOnHome": true,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：奶茶色長版風衣外套",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 105,
+    "id": "105",
     "slug": "soft-knit-cardigan",
-    "name": "柔霧針織短版外套",
+    "name": "柔霧針織短外套",
     "price": null,
     "category": "Outerwear",
-    "sizes": ["F"],
-    "colors": ["燕麥米", "霧黑"],
-    "description": "柔軟針織與短版比例，適合搭配洋裝或高腰褲裝。",
+    "sizes": [
+      "F"
+    ],
+    "colors": [
+      "柔霧杏",
+      "霜白"
+    ],
+    "description": "細膩針織與短版比例，適合洋裝或高腰褲搭配，讓日常穿搭更精緻。",
     "image": "/uploads/products/rola-look-05.jpg",
     "sortOrder": 5,
     "isActive": true,
     "isNew": true,
-    "lineInquiryText": "我想詢問柔霧針織短版外套的尺寸與價格"
+    "showOnHome": true,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：柔霧針織短外套",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 106,
+    "id": "106",
     "slug": "black-evening-drape-dress",
     "name": "黑色垂墜晚宴洋裝",
-    "price": 4380,
+    "price": "4380",
     "category": "Dresses",
-    "sizes": ["S", "M", "L"],
-    "colors": ["黑色"],
-    "description": "俐落 V 領與垂墜剪裁，適合正式餐敘與晚宴場合。",
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "colors": [
+      "黑色"
+    ],
+    "description": "簡潔領口與垂墜裙襬，修飾身形比例，保留優雅但不過度張揚。",
     "image": "/uploads/products/rola-look-06.jpg",
     "sortOrder": 6,
     "isActive": true,
     "isNew": true,
-    "lineInquiryText": "我想詢問這件商品：黑色垂墜晚宴洋裝"
+    "showOnHome": true,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：黑色垂墜晚宴洋裝",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 107,
+    "id": "107",
     "slug": "resort-linen-shirt",
-    "name": "亞麻感寬版襯衫",
-    "price": 3480,
+    "name": "亞麻感休閒襯衫",
+    "price": "3480",
     "category": "Tops",
-    "sizes": ["M", "L", "XL"],
-    "colors": ["亞麻米", "灰綠"],
-    "description": "清爽亞麻感面料，適合旅行與週末日常，輕鬆穿出質感。",
+    "sizes": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "colors": [
+      "亞麻白",
+      "淡卡其"
+    ],
+    "description": "清爽布料與寬鬆版型，適合日常、旅行與週末穿搭，舒適也有質感。",
     "image": "/uploads/products/rola-look-07.jpg",
     "sortOrder": 7,
     "isActive": true,
     "isNew": false,
-    "lineInquiryText": "我想詢問這件商品：亞麻感寬版襯衫"
+    "showOnHome": false,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：亞麻感休閒襯衫",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   },
   {
-    "id": 108,
+    "id": "108",
     "slug": "sage-green-coat-styling",
     "name": "鼠尾草綠修身外套",
-    "price": 4980,
+    "price": "4980",
     "category": "Outerwear",
-    "sizes": ["M", "L"],
-    "colors": ["鼠尾草綠", "墨灰"],
-    "description": "低調綠調與修身版型，適合打造柔和但有份量的外套穿搭。",
+    "sizes": [
+      "M",
+      "L"
+    ],
+    "colors": [
+      "鼠尾草綠",
+      "霧灰"
+    ],
+    "description": "柔和綠色搭配乾淨剪裁，低調但有辨識度，適合成熟優雅的日常造型。",
     "image": "/uploads/products/rola-look-08.jpg",
     "sortOrder": 8,
     "isActive": true,
     "isNew": false,
-    "lineInquiryText": "我想詢問這件商品：鼠尾草綠修身外套"
-  },
-  {
-    "id": 109,
-    "slug": "navy-waist-detail-midi-dress",
-    "name": "深藍腰線中長洋裝",
-    "price": 4280,
-    "category": "Dresses",
-    "sizes": ["S", "M", "L"],
-    "colors": ["深藍"],
-    "description": "腰線剪裁修飾比例，沉穩深藍適合多種正式與半正式場合。",
-    "image": "/uploads/products/rola-look-09.jpg",
-    "sortOrder": 9,
-    "isActive": true,
-    "isNew": false,
-    "lineInquiryText": "我想詢問這件商品：深藍腰線中長洋裝"
-  },
-  {
-    "id": 110,
-    "slug": "taupe-wide-leg-trousers",
-    "name": "灰褐高腰寬褲",
-    "price": 3680,
-    "category": "Bottoms",
-    "sizes": ["M", "L", "XL"],
-    "colors": ["灰褐", "黑色"],
-    "description": "高腰寬褲修飾腿型，搭配襯衫或針織上衣都能俐落有型。",
-    "image": "/uploads/products/rola-look-10.jpg",
-    "sortOrder": 10,
-    "isActive": true,
-    "isNew": false,
-    "lineInquiryText": "我想詢問這件商品：灰褐高腰寬褲"
-  },
-  {
-    "id": 111,
-    "slug": "ivory-knit-pleated-skirt",
-    "name": "象牙針織百褶裙",
-    "price": 3180,
-    "category": "Bottoms",
-    "sizes": ["S", "M", "L"],
-    "colors": ["象牙白", "焦糖"],
-    "description": "針織裙身帶有柔和份量，搭配短外套或襯衫都很耐看。",
-    "image": "/uploads/products/rola-look-11.jpg",
-    "sortOrder": 11,
-    "isActive": true,
-    "isNew": false,
-    "lineInquiryText": "我想詢問這件商品：象牙針織百褶裙"
-  },
-  {
-    "id": 112,
-    "slug": "pearl-silk-scarf",
-    "name": "珍珠光澤絲巾",
-    "price": 1280,
-    "category": "Accessories",
-    "sizes": ["F"],
-    "colors": ["珍珠白", "香檳金"],
-    "description": "輕巧絲巾可點綴襯衫、洋裝或包款，為穿搭增加細節層次。",
-    "image": "/uploads/products/rola-look-12.jpg",
-    "sortOrder": 12,
-    "isActive": true,
-    "isNew": false,
-    "lineInquiryText": "我想詢問這件商品：珍珠光澤絲巾"
+    "showOnHome": false,
+    "isBestSeller": false,
+    "lineInquiryText": "我想詢問這件商品：鼠尾草綠修身外套",
+    "updatedAt": "2026-06-05T03:55:30.809Z"
   }
 ]

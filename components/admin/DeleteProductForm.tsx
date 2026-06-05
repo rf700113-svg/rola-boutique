@@ -2,18 +2,22 @@
 
 import { deleteProductAction } from "@/app/admin/actions";
 
-export function DeleteProductForm({ id, name }: { id: number; name: string }) {
+export function DeleteProductForm({ id, name, disabled = false }: { id: string; name: string; disabled?: boolean }) {
   return (
     <form
       action={deleteProductAction}
       onSubmit={(event) => {
-        if (!window.confirm(`確定要刪除「${name}」嗎？刪除後前台也會同步移除。`)) {
+        if (!window.confirm("確定要刪除此商品嗎？")) {
           event.preventDefault();
         }
       }}
     >
       <input type="hidden" name="id" value={id} />
-      <button className="min-h-11 border border-red-300 px-5 py-2 text-sm text-red-700 transition hover:bg-red-50">
+      <button
+        disabled={disabled}
+        aria-label={`刪除 ${name}`}
+        className="min-h-9 w-full border border-red-300 px-3 py-1.5 text-xs text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+      >
         刪除
       </button>
     </form>

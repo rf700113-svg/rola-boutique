@@ -25,9 +25,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <section className="border-b border-stone px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="text-xs uppercase tracking-[0.3em] text-champagne">Products</p>
-          <h1 className="mt-4 font-serif text-4xl text-charcoal sm:text-6xl">商品選購</h1>
+          <h1 className="mt-4 font-serif text-4xl text-charcoal sm:text-6xl">商品選品</h1>
           <p className="mt-6 max-w-2xl leading-8 text-charcoal/70">
-            瀏覽 ROLA Boutique 精選女裝，挑選適合日常與重要場合的質感穿搭。
+            精選 ROLA Boutique 質感女裝，從日常穿搭到重要場合，讓妳用簡潔優雅完成風格。
           </p>
         </div>
       </section>

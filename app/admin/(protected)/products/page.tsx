@@ -1,13 +1,30 @@
 import Link from "next/link";
-import { saveProductAction } from "@/app/admin/actions";
+import { saveProductAction, toggleProductFlagAction } from "@/app/admin/actions";
 import { DeleteProductForm } from "@/components/admin/DeleteProductForm";
-import { categoryOptions, formatPrice, getAllProducts, getCategoryLabel, type Product } from "@/lib/products";
+import { ProductImageInput } from "@/components/admin/ProductImageInput";
+import {
+  categoryOptions,
+  formatPrice,
+  getAllProducts,
+  getCategoryLabel,
+  getProductStoreStatus,
+  type Product
+} from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams?: Promise<{ error?: string; errorMessage?: string; saved?: string; deleted?: string; edit?: string }>;
+  searchParams?: Promise<{
+    error?: string;
+    errorMessage?: string;
+    saved?: string;
+    updated?: string;
+    deleted?: string;
+    edit?: string;
+  }>;
 };
+
+type ToggleField = "isActive" | "isNew" | "showOnHome";
 
 const inputClass = "border border-stone bg-white px-3 py-3 text-charcoal outline-none focus:border-champagne";
 const labelClass = "grid gap-2 text-sm text-charcoal/70";
@@ -17,7 +34,7 @@ const adminTabs = [
   { label: "首頁設定", href: "/admin/settings#home" },
   { label: "社群連結", href: "/admin/settings#social" },
   { label: "品牌設定", href: "/admin/settings#brand" },
-  { label: "SEO設定", href: "/admin/settings#seo" }
+  { label: "SEO 設定", href: "/admin/settings#seo" }
 ];
 
 function AdminTabs() {
@@ -40,98 +57,298 @@ function AdminTabs() {
   );
 }
 
-function Status({ saved, deleted, errorMessage }: { saved?: string; deleted?: string; errorMessage?: string }) {
+function Status({
+  saved,
+  updated,
+  deleted,
+  errorMessage
+}: {
+  saved?: string;
+  updated?: string;
+  deleted?: string;
+  errorMessage?: string;
+}) {
   return (
     <>
-      {saved ? <div className="mt-6 border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">已成功儲存。</div> : null}
-      {deleted ? <div className="mt-6 border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">商品已刪除。</div> : null}
+      {saved ? <div className="mt-6 border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">已儲存。</div> : null}
+      {updated ? <div className="mt-6 border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">已更新。</div> : null}
+      {deleted ? <div className="mt-6 border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">已刪除。</div> : null}
       {errorMessage ? <div className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</div> : null}
     </>
   );
 }
 
-function ProductForm({ product }: { product?: Product }) {
+function StoreNotice({
+  configured,
+  requiresSupabase,
+  message
+}: {
+  configured: boolean;
+  requiresSupabase: boolean;
+  message: string;
+}) {
+  if (configured) {
+    return (
+      <div className="mt-6 border border-green-200 bg-green-50 px-4 py-3 text-sm leading-7 text-green-700">
+        已連線 Supabase。商品資料儲存在 Supabase Database，商品圖片儲存在 Supabase Storage。
+      </div>
+    );
+  }
+
+  if (requiresSupabase) {
+    return (
+      <div className="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm leading-7 text-red-700">
+        {message}
+        <br />
+        請在 Vercel 設定 NEXT_PUBLIC_SUPABASE_URL、NEXT_PUBLIC_SUPABASE_ANON_KEY、SUPABASE_SERVICE_ROLE_KEY。
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-7 text-amber-800">
+      目前未設定 Supabase，本機開發暫時使用 JSON fallback。部署到 Vercel 前請設定 Supabase。
+    </div>
+  );
+}
+
+function ProductForm({ product, disabled = false }: { product?: Product; disabled?: boolean }) {
   return (
     <section className="mt-8 bg-ivory p-5 sm:p-7">
       <h2 className="font-serif text-3xl text-charcoal">{product ? "編輯商品" : "新增商品"}</h2>
       <form action={saveProductAction} className="mt-7 grid gap-5">
         {product ? <input type="hidden" name="id" value={product.id} /> : null}
         <div className="grid gap-4 md:grid-cols-[1fr_180px_140px]">
-          <label className={labelClass}>名稱<input name="name" defaultValue={product?.name} required className={inputClass} /></label>
-          <label className={labelClass}>價格<input name="price" type="number" min="0" defaultValue={product?.price ?? ""} placeholder="可留空" className={inputClass} /></label>
-          <label className={labelClass}>排序<input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? ""} className={inputClass} /></label>
+          <label className={labelClass}>
+            商品名稱
+            <input name="name" defaultValue={product?.name} required disabled={disabled} className={inputClass} />
+          </label>
+          <label className={labelClass}>
+            商品價格
+            <input name="price" type="text" defaultValue={product?.price ?? ""} placeholder="可留空，前台顯示請洽 LINE" disabled={disabled} className={inputClass} />
+          </label>
+          <label className={labelClass}>
+            排序
+            <input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? ""} disabled={disabled} className={inputClass} />
+          </label>
         </div>
         <label className={labelClass}>
-          分類
-          <select name="category" defaultValue={product?.category ?? "Dresses"} className={inputClass}>
-            {categoryOptions.map((category) => <option key={category.value} value={category.value}>{category.label}</option>)}
+          商品分類
+          <select name="category" defaultValue={product?.category ?? "Dresses"} disabled={disabled} className={inputClass}>
+            {categoryOptions.map((category) => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
           </select>
         </label>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className={labelClass}>尺寸<input name="sizes" defaultValue={product?.sizes.join(", ")} className={inputClass} /></label>
-          <label className={labelClass}>顏色<input name="colors" defaultValue={product?.colors.join(", ")} className={inputClass} /></label>
+          <label className={labelClass}>
+            商品尺寸
+            <input name="sizes" defaultValue={product?.sizes.join(", ")} disabled={disabled} className={inputClass} />
+          </label>
+          <label className={labelClass}>
+            商品顏色
+            <input name="colors" defaultValue={product?.colors.join(", ")} disabled={disabled} className={inputClass} />
+          </label>
         </div>
-        <label className={labelClass}>描述<textarea name="description" rows={4} defaultValue={product?.description} className={inputClass} /></label>
-        <label className={labelClass}>LINE 詢問文字<textarea name="lineInquiryText" rows={2} defaultValue={product?.lineInquiryText ?? ""} className={inputClass} /></label>
         <label className={labelClass}>
-          圖片
-          <input name="imageFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" className="border border-stone bg-white px-3 py-3 text-charcoal file:mr-4 file:border-0 file:bg-charcoal file:px-4 file:py-2 file:text-white" />
-          <span className="text-xs text-charcoal/50">{product?.image ? `目前圖片：${product.image}` : "圖片會上傳到 public/uploads/products"}</span>
+          商品描述
+          <textarea name="description" rows={4} defaultValue={product?.description} disabled={disabled} className={inputClass} />
         </label>
-        <div className="grid gap-3 sm:grid-cols-4">
-          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm"><input name="isActive" type="checkbox" defaultChecked={product?.isActive ?? true} />上架</label>
-          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm"><input name="isNew" type="checkbox" defaultChecked={product?.isNew ?? false} />新品</label>
-          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm"><input name="showOnHome" type="checkbox" defaultChecked={product?.showOnHome ?? product?.isNew ?? false} />首頁顯示</label>
-          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm"><input name="isBestSeller" type="checkbox" defaultChecked={product?.isBestSeller ?? false} />熱銷標記</label>
+        <label className={labelClass}>
+          LINE 詢問文字
+          <textarea name="lineInquiryText" rows={2} defaultValue={product?.lineInquiryText ?? ""} disabled={disabled} className={inputClass} />
+        </label>
+        <ProductImageInput disabled={disabled} currentImage={product?.image} />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm">
+            <input name="isActive" type="checkbox" defaultChecked={product?.isActive ?? true} disabled={disabled} />
+            上架
+          </label>
+          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm">
+            <input name="isNew" type="checkbox" defaultChecked={product?.isNew ?? false} disabled={disabled} />
+            新品
+          </label>
+          <label className="flex gap-3 border border-stone bg-white px-4 py-3 text-sm">
+            <input name="showOnHome" type="checkbox" defaultChecked={product?.showOnHome ?? product?.isNew ?? false} disabled={disabled} />
+            首頁顯示
+          </label>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <button className="min-h-12 bg-charcoal px-5 py-3 text-sm tracking-[0.16em] text-white">{product ? "儲存修改" : "新增商品"}</button>
-          {product ? <Link href="/admin/products" className="inline-flex min-h-12 items-center justify-center border border-stone px-5 py-3 text-sm">取消編輯</Link> : null}
+          <button disabled={disabled} className="min-h-12 bg-charcoal px-5 py-3 text-sm tracking-[0.16em] text-white disabled:cursor-not-allowed disabled:opacity-50">
+            {product ? "儲存修改" : "新增商品"}
+          </button>
+          {product ? (
+            <Link href="/admin/products" className="inline-flex min-h-12 items-center justify-center border border-stone px-5 py-3 text-sm">
+              取消編輯
+            </Link>
+          ) : null}
         </div>
       </form>
     </section>
   );
 }
 
+function StatusBadge({ active, trueText, falseText }: { active: boolean; trueText: string; falseText: string }) {
+  return (
+    <span className={`inline-flex min-w-16 justify-center px-3 py-1 text-xs ${active ? "bg-charcoal text-white" : "bg-stone text-charcoal"}`}>
+      {active ? trueText : falseText}
+    </span>
+  );
+}
+
+function ToggleButton({
+  id,
+  field,
+  value,
+  trueText,
+  falseText,
+  disabled
+}: {
+  id: string;
+  field: ToggleField;
+  value: boolean;
+  trueText: string;
+  falseText: string;
+  disabled?: boolean;
+}) {
+  return (
+    <form action={toggleProductFlagAction}>
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="field" value={field} />
+      <input type="hidden" name="value" value={String(!value)} />
+      <button
+        disabled={disabled}
+        className={`min-h-9 w-full border px-3 py-1.5 text-xs transition disabled:cursor-not-allowed disabled:opacity-50 ${
+          value
+            ? "border-charcoal bg-charcoal text-white hover:bg-white hover:text-charcoal"
+            : "border-stone bg-white text-charcoal hover:border-champagne hover:text-champagne"
+        }`}
+      >
+        {value ? trueText : falseText}
+      </button>
+    </form>
+  );
+}
+
+function ProductList({ products, disabled }: { products: Product[]; disabled: boolean }) {
+  if (products.length === 0) {
+    return <div className="bg-ivory px-5 py-10 text-center text-sm text-charcoal/60">目前尚未建立商品。</div>;
+  }
+
+  return (
+    <div className="overflow-hidden bg-ivory">
+      <div className="hidden overflow-x-auto lg:block">
+        <table className="w-full min-w-[1040px] border-collapse text-left text-sm">
+          <thead className="bg-cream text-xs uppercase tracking-[0.12em] text-charcoal/55">
+            <tr>
+              <th className="px-4 py-4 font-medium">縮圖</th>
+              <th className="px-4 py-4 font-medium">商品名稱</th>
+              <th className="px-4 py-4 font-medium">價格</th>
+              <th className="px-4 py-4 font-medium">分類</th>
+              <th className="px-4 py-4 font-medium">上架</th>
+              <th className="px-4 py-4 font-medium">新品</th>
+              <th className="px-4 py-4 font-medium">首頁顯示</th>
+              <th className="px-4 py-4 font-medium">排序</th>
+              <th className="px-4 py-4 font-medium">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id} className="border-t border-stone align-middle">
+                <td className="px-4 py-4">
+                  <img src={product.image} alt="" className="h-24 w-16 bg-cream object-cover object-top" />
+                </td>
+                <td className="px-4 py-4">
+                  <p className="font-medium text-charcoal">{product.name}</p>
+                  <p className="mt-1 max-w-xs truncate text-xs text-charcoal/45">{product.lineInquiryText || "未設定 LINE 詢問文字"}</p>
+                </td>
+                <td className="px-4 py-4 text-charcoal/70">{formatPrice(product.price)}</td>
+                <td className="px-4 py-4 text-charcoal/70">{getCategoryLabel(product.category)}</td>
+                <td className="px-4 py-4">
+                  <StatusBadge active={product.isActive} trueText="上架" falseText="下架" />
+                </td>
+                <td className="px-4 py-4">
+                  <StatusBadge active={product.isNew} trueText="新品" falseText="一般" />
+                </td>
+                <td className="px-4 py-4">
+                  <StatusBadge active={Boolean(product.showOnHome)} trueText="顯示" falseText="隱藏" />
+                </td>
+                <td className="px-4 py-4 text-charcoal/70">{product.sortOrder ?? "未設定"}</td>
+                <td className="px-4 py-4">
+                  <div className="grid min-w-36 gap-2">
+                    <Link href={`/admin/products?edit=${product.id}`} className="min-h-9 border border-charcoal px-3 py-1.5 text-center text-xs text-charcoal transition hover:bg-charcoal hover:text-white">
+                      編輯
+                    </Link>
+                    <ToggleButton id={product.id} field="isActive" value={product.isActive} trueText="改為下架" falseText="改為上架" disabled={disabled} />
+                    <ToggleButton id={product.id} field="isNew" value={product.isNew} trueText="取消新品" falseText="設為新品" disabled={disabled} />
+                    <ToggleButton id={product.id} field="showOnHome" value={Boolean(product.showOnHome)} trueText="取消首頁" falseText="顯示首頁" disabled={disabled} />
+                    <DeleteProductForm id={product.id} name={product.name} disabled={disabled} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid gap-4 p-4 lg:hidden">
+        {products.map((product) => (
+          <article key={product.id} className="border border-stone bg-white p-4">
+            <div className="flex gap-4">
+              <img src={product.image} alt="" className="h-28 w-20 shrink-0 bg-cream object-cover object-top" />
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base font-medium text-charcoal">{product.name}</h3>
+                <p className="mt-1 text-sm text-charcoal/60">{formatPrice(product.price)} / {getCategoryLabel(product.category)}</p>
+                <p className="mt-1 text-xs text-charcoal/45">排序：{product.sortOrder ?? "未設定"}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <StatusBadge active={product.isActive} trueText="上架" falseText="下架" />
+                  <StatusBadge active={product.isNew} trueText="新品" falseText="一般" />
+                  <StatusBadge active={Boolean(product.showOnHome)} trueText="首頁" falseText="不顯示" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href={`/admin/products?edit=${product.id}`} className="min-h-10 border border-charcoal px-3 py-2 text-center text-xs text-charcoal">
+                編輯
+              </Link>
+              <DeleteProductForm id={product.id} name={product.name} disabled={disabled} />
+              <ToggleButton id={product.id} field="isActive" value={product.isActive} trueText="改為下架" falseText="改為上架" disabled={disabled} />
+              <ToggleButton id={product.id} field="isNew" value={product.isNew} trueText="取消新品" falseText="設為新品" disabled={disabled} />
+              <ToggleButton id={product.id} field="showOnHome" value={Boolean(product.showOnHome)} trueText="取消首頁" falseText="顯示首頁" disabled={disabled} />
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function AdminProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const storeStatus = getProductStoreStatus();
   const products = await getAllProducts({ includeHidden: true });
-  const editingProduct = params?.edit ? products.find((product) => product.id === Number(params.edit)) : undefined;
+  const editingProduct = params?.edit ? products.find((product) => product.id === params.edit) : undefined;
+  const disableProductActions = storeStatus.requiresSupabase && !storeStatus.configured;
 
   return (
     <>
       <h1 className="font-serif text-4xl text-charcoal sm:text-5xl">商品管理</h1>
       <AdminTabs />
-      <Status saved={params?.saved} deleted={params?.deleted} errorMessage={params?.errorMessage} />
-      <ProductForm product={editingProduct} />
+      <StoreNotice configured={storeStatus.configured} requiresSupabase={storeStatus.requiresSupabase} message={storeStatus.message} />
+      <Status saved={params?.saved} updated={params?.updated} deleted={params?.deleted} errorMessage={params?.errorMessage} />
+      <ProductForm product={editingProduct} disabled={disableProductActions} />
+
       <section className="mt-10">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-serif text-3xl text-charcoal">商品列表</h2>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-serif text-3xl text-charcoal">商品列表</h2>
+            <p className="mt-2 text-sm text-charcoal/55">依排序由小到大顯示，未設定排序的商品會依新增時間排在後方。</p>
+          </div>
           <p className="text-sm text-charcoal/55">{products.length} 件商品</p>
         </div>
-        <div className="grid gap-4">
-          {products.map((product) => (
-            <div key={product.id} className="bg-ivory p-4 sm:p-6">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-center gap-4">
-                  <img src={product.image} alt="" className="h-24 w-16 bg-cream object-cover object-top" />
-                  <div>
-                    <h3 className="text-lg font-medium text-charcoal">{product.name}</h3>
-                    <p className="mt-1 text-sm text-charcoal/55">{formatPrice(product.price)} / {getCategoryLabel(product.category)}</p>
-                    <p className="mt-1 text-xs text-charcoal/45">排序：{product.sortOrder ?? "未設定"}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`px-3 py-1 text-xs ${product.isActive ? "bg-charcoal text-white" : "bg-stone text-charcoal"}`}>{product.isActive ? "上架" : "下架"}</span>
-                  {product.isNew ? <span className="bg-champagne px-3 py-1 text-xs text-white">新品</span> : null}
-                  {product.showOnHome ?? product.isNew ? <span className="bg-[#8E7D6B] px-3 py-1 text-xs text-white">首頁</span> : null}
-                  <Link href={`/admin/products?edit=${product.id}`} className="min-h-11 border border-charcoal px-5 py-2 text-sm">編輯</Link>
-                  <DeleteProductForm id={product.id} name={product.name} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProductList products={products} disabled={disableProductActions} />
       </section>
     </>
   );
