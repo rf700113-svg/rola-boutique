@@ -167,6 +167,20 @@ function ProductForm({ product, disabled = false }: { product?: Product; disable
         </label>
         <div className="grid gap-4 md:grid-cols-2">
           <label className={labelClass}>
+            庫存狀態
+            <select name="stockStatus" defaultValue={product?.stockStatus ?? "現貨"} disabled={disabled} className={inputClass}>
+              <option value="現貨">現貨</option>
+              <option value="預購">預購</option>
+              <option value="售完">售完</option>
+            </select>
+          </label>
+          <label className={labelClass}>
+            庫存數量
+            <input name="stockQuantity" type="number" min="0" defaultValue={product?.stockQuantity ?? 0} disabled={disabled} className={inputClass} />
+          </label>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className={labelClass}>
             商品尺寸
             <input name="sizes" defaultValue={product?.sizes.join(", ")} disabled={disabled} className={inputClass} />
           </label>
@@ -302,6 +316,7 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
               <th className="px-4 py-4 font-medium">商品名稱</th>
               <th className="px-4 py-4 font-medium">價格</th>
               <th className="px-4 py-4 font-medium">分類</th>
+              <th className="px-4 py-4 font-medium">圖片數量</th>
               <th className="px-4 py-4 font-medium">上架</th>
               <th className="px-4 py-4 font-medium">新品</th>
               <th className="px-4 py-4 font-medium">首頁顯示</th>
@@ -310,10 +325,13 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {products.map((product) => {
+              const images = getProductImages(product);
+              const coverImage = images[0] || product.image;
+              return (
               <tr key={product.id} className="border-t border-stone align-middle">
                 <td className="px-4 py-4">
-                  <img src={product.image} alt="" className="h-24 w-16 bg-cream object-cover object-top" />
+                  {coverImage ? <img src={coverImage} alt="" className="h-24 w-16 bg-cream object-cover object-top" /> : <div className="h-24 w-16 bg-stone" />}
                 </td>
                 <td className="px-4 py-4">
                   <p className="font-medium text-charcoal">{product.name}</p>
@@ -321,6 +339,7 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
                 </td>
                 <td className="px-4 py-4 text-charcoal/70">{formatPrice(product.price)}</td>
                 <td className="px-4 py-4 text-charcoal/70">{getCategoryLabel(product.category)}</td>
+                <td className="px-4 py-4 text-charcoal/70">{images.length} 張</td>
                 <td className="px-4 py-4"><StatusBadge active={product.isActive} trueText="上架" falseText="下架" /></td>
                 <td className="px-4 py-4"><StatusBadge active={product.isNew} trueText="新品" falseText="一般" /></td>
                 <td className="px-4 py-4"><StatusBadge active={Boolean(product.showOnHome)} trueText="顯示" falseText="隱藏" /></td>
@@ -337,20 +356,24 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
                   </div>
                 </td>
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>
 
       <div className="grid gap-4 p-4 lg:hidden">
-        {products.map((product) => (
+        {products.map((product) => {
+          const images = getProductImages(product);
+          const coverImage = images[0] || product.image;
+          return (
           <article key={product.id} className="border border-stone bg-white p-4">
             <div className="flex gap-4">
-              <img src={product.image} alt="" className="h-28 w-20 shrink-0 bg-cream object-cover object-top" />
+              {coverImage ? <img src={coverImage} alt="" className="h-28 w-20 shrink-0 bg-cream object-cover object-top" /> : <div className="h-28 w-20 shrink-0 bg-stone" />}
               <div className="min-w-0 flex-1">
                 <h3 className="text-base font-medium text-charcoal">{product.name}</h3>
                 <p className="mt-1 text-sm text-charcoal/60">{formatPrice(product.price)} / {getCategoryLabel(product.category)}</p>
                 <p className="mt-1 text-xs text-charcoal/45">排序：{product.sortOrder ?? "未設定"}</p>
+                <p className="mt-1 text-xs text-charcoal/45">圖片：{images.length} 張</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <StatusBadge active={product.isActive} trueText="上架" falseText="下架" />
                   <StatusBadge active={product.isNew} trueText="新品" falseText="一般" />
@@ -368,7 +391,7 @@ function ProductList({ products, disabled }: { products: Product[]; disabled: bo
               <ToggleButton id={product.id} field="showOnHome" value={Boolean(product.showOnHome)} trueText="取消首頁" falseText="顯示首頁" disabled={disabled} />
             </div>
           </article>
-        ))}
+        )})}
       </div>
     </div>
   );

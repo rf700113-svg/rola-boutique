@@ -4,21 +4,12 @@ import { MessageCircle } from "lucide-react";
 import { lineUrl as fallbackLineUrl } from "@/lib/contact";
 import { getCategoryLabel, type Product, formatPrice, getProductImages } from "@/lib/products";
 
-const fashionFallbacks: Record<string, string> = {
-  Dresses: "/uploads/products/rola-look-09.jpg",
-  Tops: "/uploads/products/rola-look-02.jpg",
-  Bottoms: "/uploads/products/rola-look-10.jpg",
-  Outerwear: "/uploads/products/rola-look-01.jpg",
-  Accessories: "/uploads/products/rola-look-12.jpg",
-  Sale: "/uploads/products/rola-look-11.jpg"
-};
-
 function getDisplayImage(product: Product) {
   const coverImage = getProductImages(product)[0] || product.image;
 
   return coverImage && !coverImage.startsWith("/placeholders/")
     ? coverImage
-    : fashionFallbacks[product.category];
+    : "";
 }
 
 function createInquiryUrl(product: Product, lineUrl: string) {
@@ -29,18 +20,23 @@ function createInquiryUrl(product: Product, lineUrl: string) {
 
 export function ProductCard({ product, rank, lineUrl = fallbackLineUrl }: { product: Product; rank?: number; lineUrl?: string }) {
   const badge = rank ? `No.${rank}` : product.isNew ? "NEW" : product.isBestSeller ? "BEST" : "";
+  const displayImage = getDisplayImage(product);
 
   return (
     <article className="group bg-cream/40 transition duration-[400ms] hover:-translate-y-[6px] hover:scale-[1.03] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)]">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[5/6] overflow-hidden bg-ivory sm:aspect-[3/4]">
-          <Image
-            src={getDisplayImage(product)}
-            alt={product.name}
-            fill
-            className="object-cover object-top transition duration-[400ms] group-hover:scale-[1.03]"
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
-          />
+          {displayImage ? (
+            <Image
+              src={displayImage}
+              alt={product.name}
+              fill
+              className="object-cover object-top transition duration-[400ms] group-hover:scale-[1.03]"
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-stone" />
+          )}
           {badge ? (
             <span className="absolute left-2.5 top-2.5 bg-cream px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-charcoal sm:left-3 sm:top-3 sm:px-3 sm:text-[11px] sm:tracking-[0.18em]">
               {badge}

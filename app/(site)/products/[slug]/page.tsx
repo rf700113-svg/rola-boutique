@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, MessageCircle } from "lucide-react";
-import { ContactButtons } from "@/components/ContactButtons";
+import { ChevronLeft, Facebook, MessageCircle } from "lucide-react";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductCard } from "@/components/ProductCard";
 import { formatPrice, getAllProducts, getCategoryLabel, getProductBySlug, getProductImages } from "@/lib/products";
@@ -11,12 +10,10 @@ type ProductPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const fallbackProductImage = "/uploads/products/rola-look-01.jpg";
-
 export const dynamic = "force-dynamic";
 
 function createInquiryUrl(productName: string, lineUrl: string, customText?: string) {
-  const message = customText || `我想詢問這件商品：${productName}`;
+  const message = customText || `您好，我想詢問「${productName}」這件商品的尺寸與庫存。`;
   const separator = lineUrl.includes("?") ? "&" : "?";
   return `${lineUrl}${separator}text=${encodeURIComponent(message)}`;
 }
@@ -40,7 +37,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const social = await getSocialSettings();
   const galleryImages = getProductImages(product).filter((image) => !image.startsWith("/placeholders/"));
-  const safeGalleryImages = galleryImages.length > 0 ? galleryImages : [fallbackProductImage];
   const products = await getAllProducts();
   const related = products
     .filter((item) => item.category === product.category && item.slug !== product.slug)
@@ -56,7 +52,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </Link>
 
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-            <ProductGallery images={safeGalleryImages} productName={product.name} />
+            <ProductGallery images={galleryImages} productName={product.name} />
 
             <div className="lg:pt-8">
               {product.badge ? (
@@ -102,9 +98,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#06C755] px-6 py-4 text-sm tracking-[0.12em] text-white transition hover:opacity-90"
                 >
                   <MessageCircle size={19} />
-                  用 LINE 詢問這件商品
+                  LINE 詢問【{product.name}】
                 </a>
-                <ContactButtons social={social} />
+                {social.showFacebookButton ? (
+                  <a
+                    href={social.facebookUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#1877F2] px-6 py-4 text-sm tracking-[0.12em] text-white transition hover:opacity-90"
+                  >
+                    <Facebook size={19} />
+                    Facebook 私訊詢問
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>

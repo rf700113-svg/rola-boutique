@@ -1,14 +1,20 @@
 {
   "heroImage": "/uploads/site/hero-boutique-showroom.png",
+  "heroKicker": "LUXURY FASHION BOUTIQUE",
   "heroTitle": "ROLA",
   "heroSubtitle": "Timeless Elegance Since 2012",
   "heroDescription": "獻給懂得生活品味的妳，\n從日常到重要時刻，\n用質感穿搭展現自信與優雅。",
   "primaryButtonText": "探索新品",
-  "primaryButtonLink": "/#new-arrival",
+  "primaryButtonLink": "#new-arrivals",
   "secondaryButtonText": "LINE 一對一詢問",
   "secondaryButtonLink": "https://line.me/R/ti/p/@sxg2195h",
-  "newArrivalCount": 8,
-  "aboutTitle": "真正的優雅，不需要刻意張揚",
-  "aboutContent": "ROLA Boutique 創立於 2012 年，獻給重視質感與生活品味的女性。從日常穿搭到重要場合，我們相信服裝不只是穿著，更是一種自信與態度。",
-  "aboutButtonText": "了解品牌故事"
+  "newArrivalCount": 6,
+  "lineTitle": "加入 ROLA LINE",
+  "lineSubtitle": "新品詢問｜尺寸建議｜一對一穿搭服務",
+  "lineButtonText": "LINE 一對一詢問",
+  "facebookButtonText": "Facebook 最新穿搭",
+  "footerText": "© 2026 ROLA Boutique",
+  "aboutTitle": "",
+  "aboutContent": "",
+  "aboutButtonText": ""
 }

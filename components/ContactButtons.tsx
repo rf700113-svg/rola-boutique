@@ -1,4 +1,4 @@
-﻿import { Facebook, MessageCircle } from "lucide-react";
+import { Facebook, MessageCircle } from "lucide-react";
 import { facebookUrl as fallbackFacebookUrl, lineUrl as fallbackLineUrl } from "@/lib/contact";
 import type { SocialSettings } from "@/lib/settings";
 
@@ -29,9 +29,9 @@ export function ContactButtons({ compact = false, social }: { compact?: boolean;
           className="inline-flex items-center justify-center gap-2 border border-[#1877F2] bg-[#1877F2] px-6 py-3 text-sm tracking-[0.16em] text-white transition hover:opacity-90"
         >
           <Facebook size={18} />
-          Facebook ??啁忽??        </a>
+          Facebook 私訊詢問
+        </a>
       ) : null}
     </div>
   );
 }
-

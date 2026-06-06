@@ -64,6 +64,11 @@ function getExistingImagesFromForm(formData: FormData) {
     .map((item) => item.url);
 }
 
+function getNumberOrZero(formData: FormData, key: string) {
+  const value = Number(getString(formData, key));
+  return Number.isFinite(value) ? value : 0;
+}
+
 function redirectWithError(tab: AdminTab, error: unknown) {
   const message = error instanceof Error ? error.message : "儲存失敗，請稍後再試。";
   const path = tab === "products" ? "/admin/products" : "/admin/settings";
@@ -103,8 +108,10 @@ function buildProductFromForm(formData: FormData, existing?: Product, images?: s
     sizes: toArrayFromInput(formData.get("sizes")),
     colors: toArrayFromInput(formData.get("colors")),
     description: getString(formData, "description"),
-    image: images?.[0] || existing?.image || "/uploads/products/rola-look-01.jpg",
+    image: images?.[0] || "",
     images: images ?? existing?.images ?? [],
+    stockStatus: getString(formData, "stockStatus") || existing?.stockStatus || "現貨",
+    stockQuantity: getNumberOrZero(formData, "stockQuantity"),
     ...(typeof sortOrder === "number" ? { sortOrder } : {}),
     isActive: getCheckbox(formData, "isActive"),
     isNew: getCheckbox(formData, "isNew"),

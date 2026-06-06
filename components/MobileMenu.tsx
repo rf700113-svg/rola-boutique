@@ -37,7 +37,7 @@ export function MobileMenu({ navItems }: { navItems: NavItem[] }) {
       <button
         className="relative z-[10003] flex h-12 min-h-12 w-12 min-w-12 items-center justify-center border border-stone text-charcoal xl:hidden"
         type="button"
-        aria-label={isOpen ? "???詨" : "???詨"}
+        aria-label={isOpen ? "關閉選單" : "開啟選單"}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}
       >

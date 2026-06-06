@@ -23,6 +23,8 @@ export type Product = {
   description: string;
   image: string;
   images: string[];
+  stockStatus: string;
+  stockQuantity: number;
   sortOrder?: number;
   isActive: boolean;
   isNew: boolean;
@@ -45,6 +47,8 @@ type SupabaseProductRow = {
   description: string | null;
   image_url: string | null;
   images: unknown;
+  stock_status: string | null;
+  stock_quantity: number | null;
   sort_order: number | null;
   is_active: boolean | null;
   is_new: boolean | null;
@@ -106,7 +110,7 @@ function normalizeTextArray(value: string[] | string | null | undefined) {
     .filter(Boolean);
 }
 
-export function getProductImages(product: { images?: unknown; image?: string | null; image_url?: string | null }) {
+export function normalizeProductImages(product: { images?: unknown; image?: string | null; image_url?: string | null }) {
   const imageUrl = product.image ?? product.image_url ?? "";
   const images = Array.isArray(product.images)
     ? product.images.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)
@@ -118,6 +122,8 @@ export function getProductImages(product: { images?: unknown; image?: string | n
 
   return imageUrl ? [imageUrl] : [];
 }
+
+export const getProductImages = normalizeProductImages;
 
 function hydrateProduct(product: Partial<Product>): Product {
   const id = String(product.id ?? crypto.randomUUID());
@@ -137,6 +143,8 @@ function hydrateProduct(product: Partial<Product>): Product {
     description: product.description ?? "",
     image: images[0] || product.image || fallbackProductImage,
     images,
+    stockStatus: product.stockStatus || "現貨",
+    stockQuantity: typeof product.stockQuantity === "number" ? product.stockQuantity : 0,
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive ?? true,
     isNew,
@@ -163,6 +171,8 @@ function rowToProduct(row: SupabaseProductRow): Product {
     description: row.description ?? "",
     image: images[0] || row.image_url || "",
     images,
+    stockStatus: row.stock_status || "現貨",
+    stockQuantity: typeof row.stock_quantity === "number" ? row.stock_quantity : 0,
     sortOrder: typeof row.sort_order === "number" ? row.sort_order : undefined,
     isActive: row.is_active ?? true,
     isNew: row.is_new ?? false,
@@ -174,7 +184,7 @@ function rowToProduct(row: SupabaseProductRow): Product {
 }
 
 function productToRow(product: Product) {
-  const images = getProductImages(product);
+  const images = normalizeProductImages({ images: product.images, image: product.image === fallbackProductImage ? "" : product.image });
 
   return {
     id: product.id,
@@ -186,6 +196,8 @@ function productToRow(product: Product) {
     description: product.description,
     image_url: images[0] ?? null,
     images,
+    stock_status: product.stockStatus || "現貨",
+    stock_quantity: typeof product.stockQuantity === "number" ? product.stockQuantity : 0,
     sort_order: typeof product.sortOrder === "number" ? product.sortOrder : null,
     is_active: product.isActive,
     is_new: product.isNew,
@@ -223,6 +235,9 @@ async function fetchSupabaseProducts() {
 
   if (!response.ok) {
     const detail = await response.text();
+    if (detail.toLowerCase().includes("images") || detail.toLowerCase().includes("stock_")) {
+      throw new Error("商品資料讀取失敗：欄位 images 或庫存欄位不存在，請先執行 supabase/product-upgrade.sql。");
+    }
     throw new Error(normalizeSupabaseError(response.status, detail));
   }
 
@@ -269,6 +284,9 @@ export async function saveProduct(product: Product) {
 
     if (!response.ok) {
       const detail = await response.text();
+      if (detail.toLowerCase().includes("images") || detail.toLowerCase().includes("stock_")) {
+        throw new Error("商品資料儲存失敗：欄位 images 或庫存欄位不存在，請先執行 supabase/product-upgrade.sql。");
+      }
       throw new Error(normalizeSupabaseError(response.status, detail));
     }
     return;
@@ -295,6 +313,8 @@ export async function saveProducts(products: Product[]) {
     description: product.description,
     image: getProductImages(product)[0] || product.image,
     images: getProductImages(product),
+    stockStatus: product.stockStatus,
+    stockQuantity: product.stockQuantity,
     ...(typeof product.sortOrder === "number" ? { sortOrder: product.sortOrder } : {}),
     isActive: product.isActive,
     isNew: product.isNew,
